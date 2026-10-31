@@ -1,6 +1,6 @@
 # Plan: konto firmowe, certyfikat z kodem QR i wyróżnienie na mapie
 
-Stan na 3.10.2026. Punkt odniesienia: [stan-realizacji.md](stan-realizacji.md), wzór warstw: zgłoszenia i punkty z utrudnieniami.
+Stan na 3.10.2026. Wzór warstw: zgłoszenia i punkty z utrudnieniami.
 
 ## 1. Zakres
 

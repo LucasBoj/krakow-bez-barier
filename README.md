@@ -2,8 +2,6 @@
 
 **Planer dostępnego miasta.** Użytkownik opisuje, czego potrzebuje, a aplikacja ocenia miejsca i układa trasę, którą da się faktycznie pokonać. Mieszkańcy mogą też zgłaszać urzędowi brakujące udogodnienia.
 
-Projekt na hackathon **HackYeah 2026**, kategoria **„Kraków bez barier”** (Gmina Miejska Kraków).
-
 > To samo miejsce i ta sama trasa dostają **inną ocenę dla każdego profilu**, zawsze z uzasadnieniem. Zamiast „dostępne: tak/nie” aplikacja podaje konkretne bariery i udogodnienia, a przy każdej cesze źródło i datę danych.
 
 ---
@@ -43,6 +41,7 @@ Informacje o dostępności miejsc w Krakowie są rozproszone i zwykle zero-jedyn
 | **Komunikacja miejska** | dla odcinków dłuższych niż limit z profilu: linia, przystanki, godziny odjazdu i przyjazdu, najbliższe odjazdy, jedna przesiadka; rozkład ZTP Kraków (GTFS) |
 | **Zgłoszenia mieszkańców** | na karcie miejsca: „brakuje udogodnienia / bariera / błędne dane”, z listą udogodnień i opisem; zgłoszenie jest anonimowe, a status i odpowiedź urzędu widać w zakładce „Zgłoszenia” |
 | **Panel urzędnika** | logowanie, zestawienie (czego najczęściej brakuje, które miejsca mają najwięcej zgłoszeń), mapa zgłoszeń, zmiana statusu z odpowiedzią dla zgłaszającego, potwierdzanie braków; zakładka **„Braki danych”**: w których kategoriach miejsc publicznych brakuje informacji o dostępności (np. urzędy 15%, przychodnie 14%, parki 3% miejsc z informacją dla wózków) i lista miejsc, w których źródła się różnią, do sprawdzenia w terenie |
+| **Luki w danych i bariery** (`/miasto`, bez logowania) | raport dla urzędu: wskaźniki dla miasta (12 589 miejsc: 17,4% z danymi o wejściu dla wózków, 82,5% bez żadnych danych), rozbicie na 18 dzielnic (granice z MSIP) i kategorie, kartogram dzielnic, 20 miejsc do sprawdzenia w pierwszej kolejności z opisaną regułą (obiekty publiczne bez danych, ruch przybliżony odjazdami komunikacji z GTFS), bariery potwierdzone przez urząd na mapie, eksport CSV i GeoJSON. Liczby odtwarza `dotnet run --project src/Tools -- report krakow` ([`doc/RAPORT_LUKI_W_DANYCH.md`](doc/RAPORT_LUKI_W_DANYCH.md), pliki w [`doc/raport/`](doc/raport/)) |
 | **Dostępny interfejs** | status zawsze jako kolor, znak i tekst; link „Przejdź do treści”; widoczny fokus; etykiety ARIA; mapa ma odpowiednik w postaci listy; tryb ograniczonego ruchu. Automatyczny audyt WCAG 2.2 A/AA (axe-core) 13 widoków na telefonie i komputerze: 0 problemów, szczegóły w [`doc/dostepnosc.md`](doc/dostepnosc.md) |
 
 ## Dla kogo
@@ -131,11 +130,11 @@ flowchart LR
 **Wymagania:** [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
-git clone https://github.com/Hackyeah2026/CRACOW_WITHOUT_BARRIERS.git
+git clone https://github.com/LucasBoj/krakow-bez-barier.git
 ```
 
 ```bash
-cd CRACOW_WITHOUT_BARRIERS
+cd krakow-bez-barier
 ```
 
 ```bash
@@ -164,6 +163,12 @@ Same dane miejskie (MSIP) dla istniejącego katalogu, bez ponownego pobierania O
 
 ```bash
 dotnet run --project src/Tools -- city krakow
+```
+
+Liczby raportu „Luki w danych i bariery” (te same co strona `/miasto`, bez barier z bazy), zapis do `doc/RAPORT_LUKI_W_DANYCH.md` i `doc/raport/`:
+
+```bash
+dotnet run --project src/Tools -- report krakow
 ```
 
 ## Konfiguracja
@@ -337,8 +342,6 @@ Mówimy o nich wprost, także w aplikacji:
 - Część cech miejsc ze ścieżki demo to dane demonstracyjne zespołu.
 - Rejestr toalet publicznych jest ze stanu na 2023 rok; informacja o toaletach nieczynnych (remont, awaria) pochodzi z tego stanu i jest podana w opisie miejsca.
 
-Szczegółowy stan prac: [`doc/stan-realizacji.md`](doc/stan-realizacji.md).
-
 ## Rozwój
 
 - **Dane miejskie:** budynki publiczne z MSIP Kraków, wiaty i koperty z ArcGIS Hub ZTP, deklaracje dostępności instytucji.
@@ -356,4 +359,4 @@ Opis projektu do zgłoszenia (2 strony): [`doc/opis-projektu.pdf`](doc/opis-proj
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf="$PWD/doc/opis-projektu.pdf" "file://$PWD/doc/opis-projektu/opis-projektu.html"
 ```
 
-Dokumentacja projektu: [jak działa aplikacja](doc/jak-dziala-aplikacja.md) · [wymagania konkursu](doc/WYMAGANIA_KONKURSU.md) · [plan prac](doc/plan-prac.md) · [plan implementacji](doc/plan-implementacji.md) · [stan realizacji](doc/stan-realizacji.md)
+Dokumentacja projektu: [jak działa aplikacja](doc/jak-dziala-aplikacja.md) · [wymagania konkursu](doc/WYMAGANIA_KONKURSU.md)
