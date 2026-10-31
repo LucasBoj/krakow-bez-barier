@@ -1,88 +1,64 @@
-# Kraków bez barier – podsumowanie wymagań konkursu
+# Kraków bez barier – wymagania konkursu „Open Data App”
 
-Konkurs w ramach hackathonu **HackYeah**. Organizator: Proidea Sp. z o.o., pod auspicjami Gminy Miejskiej Kraków.
+Organizator: Gmina Miejska Kraków, Centrum Obsługi Informatycznej, Referat ds. Smart City i analizy danych (ul. Basztowa 20, Kraków). Partnerzy: AGH i Politechnika Krakowska.
+Regulamin: załącznik do zarządzenia nr 1194/2026 Prezydenta Miasta Krakowa z 10.06.2026, https://plikimpi.krakow.pl/zalacznik/629188.
+Ogłoszenie i załączniki: https://dlabiznesu.krakow.pl/nauka. Kontakt: konkursopendata@um.krakow.pl.
 
-## 1. Zadanie konkursowe
+## 1. Zadanie
 
-Stworzyć narzędzie, które:
+Działające demo rozwiązania informatycznego (aplikacja, system, dashboard, strona), które korzysta z **co najmniej jednego zbioru otwartych danych Miasta Krakowa** (otwartedane.um.krakow.pl, msip.krakow.pl). Można łączyć je z innymi otwartymi danymi (dane.gov.pl, GUS, inne miasta i instytucje). Nacisk: innowacyjność, użyteczność, potencjał wdrożeniowy (§3 ust. 10–11).
 
-- pomaga **mieszkańcom i turystom** oceniać dostępność miejsc i tras **zgodnie z ich indywidualnymi potrzebami**,
-- jest **źródłem informacji o dostępności usług i oferty miasta**,
-- pokazuje **konkretne informacje o barierach i dostępnych udogodnieniach**,
-- ma **potencjał dalszego rozwoju**.
+## 2. Terminy
 
-## 2. Kluczowe wymagania z perspektywy produktu
+| Co | Termin | Stan |
+|---|---|---|
+| Formularz zgłoszeniowy (zał. nr 1), papierowo na ul. Basztowej 20 | 25.10.2026 | złożony |
+| Praca konkursowa mailem na konkursopendata@um.krakow.pl | **5.11.2026** | |
+| Ocena etapu I, lista do 10 prac do finału | do 2 tygodni po 5.11 | |
+| Finał (etap II) | 27.11.2026, Klaster Innowacji Zabłocie 20.22 | |
 
-| Obszar | Co musi zawierać rozwiązanie |
-|---|---|
-| Użytkownicy | Mieszkańcy oraz turyści |
-| Personalizacja | Ocena miejsc i tras dopasowana do indywidualnych potrzeb (profil użytkownika) |
-| Miejsca i trasy | Ocena dostępności zarówno punktów (POI), jak i tras |
-| Informacja | Konkretne dane o barierach (np. schody, wąskie przejścia, brak windy) i udogodnieniach (np. podjazdy, toalety, pętle indukcyjne) |
-| Usługi miejskie | Rola źródła wiedzy o dostępności usług i oferty miasta |
-| Rozwój | Architektura umożliwiająca dalszą rozbudowę (nowe dane, funkcje, miasta) |
+## 3. Zawartość pracy (§5 ust. 2)
 
-## 3. Zasady uczestnictwa
-
-- Udział indywidualny lub w **zespołach do 6 osób**.
-- Start prac: **nie wcześniej niż 3 października, godz. 11:00**.
-- Termin oddania: **najpóźniej 4 października, godz. 11:00**.
-- Zmiany po terminie są nieważne i nie będą brane pod uwagę przez jury.
-- Zgłoszenie przez platformę **HackTribe**, **w języku polskim**.
-- Wykluczeni: osoby spokrewnione lub spowinowacone z jurorami oraz pracownicy fundatora nagrody.
-- Skład jury zostanie opublikowany na stronie HackYeah najpóźniej 3 października.
-
-## 4. Wymagana zawartość zgłoszenia
-
-**Obowiązkowo:**
+Brak któregokolwiek elementu może skutkować odrzuceniem.
 
 - [ ] Tytuł projektu
-- [ ] ID zespołu
-- [ ] Opis projektu
-- [ ] Prezentacja PDF – **maks. 10 slajdów**
-- [ ] Film **mp4 – maks. 3 minuty** prezentujący projekt
+- [ ] Opis projektu i jego celu, **maks. 2 strony, PDF** ([`opis-projektu.pdf`](opis-projektu.pdf))
+- [ ] Demo – działająca aplikacja pod publicznym adresem
+- [ ] Instrukcja uruchomienia
+- [ ] Dokumentacja techniczna: technologie, wykorzystane dane, architektura, możliwości rozwoju
 
-**Opcjonalnie (warto dodać):**
+## 4. Ocena formalna (zał. nr 3)
 
-- [ ] Zrzuty ekranu
-- [ ] Repozytorium kodu
-- [ ] Linki do dema
-- [ ] Materiały graficzne i inne materiały związane z projektem
+- zgłoszenie na oficjalnym formularzu,
+- praca w terminie,
+- jedna praca na zespół,
+- wykorzystane dane z otwartych danych Miasta Krakowa.
 
-## 5. Kryteria oceny
+## 5. Kryteria etapu I (§4 ust. 2, 70% oceny końcowej)
 
-| Kryterium | Waga | Co jest oceniane |
+| Kryterium | Waga | Co oceniają |
 |---|---|---|
-| **Pomysł (Idea)** | 30% | Kreatywność i stopień, w jakim rozwiązuje problem |
-| **Aspekty techniczne** | 30% | Użyte technologie, interakcja, algorytmy, jakość kodu |
-| **Projekt (Design)** | 20% | Architektura rozwiązania, skalowalność, możliwość wdrożenia produkcyjnego |
-| **Związek z kategorią** | 10% | Zgodność rozwiązania z opisem zadania |
-| **Efekt WOW** | 10% | Oryginalność, dodatkowe funkcje wykraczające poza wymagania |
+| Wpływ na miasto | 30% | trafność wobec potrzeb mieszkańców i miasta |
+| Użycie danych | 20% | zakres użycia danych, korelacje między źródłami, multikierunkowość |
+| Innowacyjność | 15% | niepowtarzalność, nowatorska wizja |
+| Architektura techniczna | 15% | stabilność, dobór technologii, skalowalność, możliwość rozwoju |
+| Potencjał biznesowy | 10% | użyteczność dla sektora prywatnego i publicznego |
+| UX | 5% | intuicyjność, dostępność, dostęp do kluczowych funkcji |
+| UI | 5% | estetyka, branding, spójność interfejsu |
 
-**Próg nagrody:** projekt musi uzyskać **min. 50% punktów**.
+Każde kryterium 0–10 pkt, wynik to średnia ocen członków Kapituły.
 
-## 6. Nagroda i kwestie formalne
+## 6. Etap II – finał (30% oceny końcowej)
 
-- Nagroda: **5 000 PLN** (brutto, z podatkiem).
-- Wypłata w ciągu **180 dni** od ogłoszenia wyników.
-- Decyzje jury są ostateczne i niepodważalne; zapadają zwykłą większością głosów (przy remisie decyduje przewodniczący).
-- Jury składa się z minimum dwóch osób.
-- **Majątkowe prawa autorskie** do nagrodzonego rozwiązania zostają przeniesione na fundatora po przyjęciu nagrody (umowa z każdym członkiem zespołu, Załącznik 1 do regulaminu).
+- 5 minut prezentacji (pitch) i 5 minut odpowiedzi na pytania, łącznie do 20 minut na zespół.
+- Oceniane: prezentacja wartości rozwiązania (0–10) i odpowiedzi na pytania (0–10).
 
-## 7. Wskazówki: jak punktować
+## 7. Nagrody i prawa
 
-- **Pomysł (30%)** – jasno pokazać problem i grupy docelowe (np. osoby poruszające się na wózku, z wózkiem dziecięcym, niewidome i słabowidzące, niesłyszące, z niepełnosprawnością intelektualną, seniorzy) oraz to, jak aplikacja realnie go rozwiązuje.
-- **Technika (30%)** – czytelny stos technologiczny, algorytm oceny dostępności i wyznaczania tras zależny od profilu, czysty i udokumentowany kod w repozytorium.
-- **Design (20%)** – diagram architektury, skalowalność, otwarte dane i API, plan wdrożenia produkcyjnego; do tego dostępny interfejs samej aplikacji (kontrast, duże elementy, obsługa czytników ekranu).
-- **Związek z kategorią (10%)** – w opisie i na slajdach wprost odnieść się do każdego punktu zadania z sekcji 1.
-- **WOW (10%)** – funkcje dodatkowe, np. zgłaszanie barier przez społeczność, weryfikacja danych, tryb offline, wsparcie głosowe.
-- **Potencjał rozwoju** – osobny slajd z roadmapą (nowe źródła danych, kolejne miasta, integracja z systemami miejskimi, partnerzy).
+- Nagroda główna 10 000 zł brutto, dwa wyróżnienia po 5 000 zł brutto, dzielone równo w zespole.
+- Organizator dostaje niewyłączną, nieodpłatną licencję na pracę do przeprowadzenia i promocji konkursu. **Licencja nie obejmuje kodu źródłowego ani dokumentacji technicznej**; zostają one własnością zespołu i są objęte poufnością (§7, §8).
+- Praca musi być autorska i nie może naruszać praw osób trzecich (§3 ust. 12–13).
 
-## 8. Checklista przed oddaniem (do 4.10, 11:00)
+## 8. Zespół
 
-- [ ] Opis projektu w języku polskim
-- [ ] Prezentacja PDF (≤ 10 slajdów) w języku polskim
-- [ ] Film mp4 (≤ 3 min)
-- [ ] Link do repozytorium i dema (jeśli dostępne)
-- [ ] Zrzuty ekranu / materiały graficzne
-- [ ] Zgłoszenie wysłane przez HackTribe z zapasem czasu przed terminem
+Pioneer Collective, 2–5 osób, ze wskazanym liderem (§3 ust. 1–3).
