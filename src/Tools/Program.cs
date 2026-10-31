@@ -52,7 +52,7 @@ if (command == "transit")
 
 var output = Path.Combine(dataDir, "places");
 using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
-http.DefaultRequestHeaders.UserAgent.ParseAdd("KrakowBezBarier/1.0 (+https://github.com/Hackyeah2026/CRACOW_WITHOUT_BARRIERS)");
+http.DefaultRequestHeaders.UserAgent.ParseAdd("KrakowBezBarier/1.0 (+https://github.com/LucasBoj/krakow-bez-barier)");
 
 var docPath = Path.Combine(root, "doc", "DATA_SOURCES.md");
 var sources = new List<DataSource>();

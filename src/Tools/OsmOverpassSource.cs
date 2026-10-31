@@ -130,7 +130,7 @@ public sealed class OsmOverpassSource
     private static async Task<string> DownloadAsync(string query)
     {
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(240) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("KrakowBezBarier-Import/0.2 (HackYeah 2026)");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("KrakowBezBarier-Import/0.2 (+https://github.com/LucasBoj/krakow-bez-barier)");
 
         // Instancje publiczne odrzucają zapytania przy obciążeniu, więc po nieudanej rundzie czekamy i próbujemy ponownie.
         for (var round = 0; round < Rounds; round++)
