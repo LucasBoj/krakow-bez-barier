@@ -2,8 +2,6 @@
 
 **Planer dostępnego miasta.** Użytkownik opisuje, czego potrzebuje, a aplikacja ocenia miejsca i układa trasę, którą da się faktycznie pokonać. Mieszkańcy mogą też zgłaszać urzędowi brakujące udogodnienia.
 
-Projekt na hackathon **HackYeah 2026**, kategoria **„Kraków bez barier”** (Gmina Miejska Kraków).
-
 > To samo miejsce i ta sama trasa dostają **inną ocenę dla każdego profilu**, zawsze z uzasadnieniem. Zamiast „dostępne: tak/nie” aplikacja podaje konkretne bariery i udogodnienia, a przy każdej cesze źródło i datę danych.
 
 ---
@@ -132,11 +130,11 @@ flowchart LR
 **Wymagania:** [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
-git clone https://github.com/Hackyeah2026/CRACOW_WITHOUT_BARRIERS.git
+git clone https://github.com/LucasBoj/krakow-bez-barier.git
 ```
 
 ```bash
-cd CRACOW_WITHOUT_BARRIERS
+cd krakow-bez-barier
 ```
 
 ```bash
@@ -344,8 +342,6 @@ Mówimy o nich wprost, także w aplikacji:
 - Część cech miejsc ze ścieżki demo to dane demonstracyjne zespołu.
 - Rejestr toalet publicznych jest ze stanu na 2023 rok; informacja o toaletach nieczynnych (remont, awaria) pochodzi z tego stanu i jest podana w opisie miejsca.
 
-Szczegółowy stan prac: [`doc/stan-realizacji.md`](doc/stan-realizacji.md).
-
 ## Rozwój
 
 - **Dane miejskie:** budynki publiczne z MSIP Kraków, wiaty i koperty z ArcGIS Hub ZTP, deklaracje dostępności instytucji.
@@ -363,4 +359,4 @@ Opis projektu do zgłoszenia (2 strony): [`doc/opis-projektu.pdf`](doc/opis-proj
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf="$PWD/doc/opis-projektu.pdf" "file://$PWD/doc/opis-projektu/opis-projektu.html"
 ```
 
-Dokumentacja projektu: [jak działa aplikacja](doc/jak-dziala-aplikacja.md) · [wymagania konkursu](doc/WYMAGANIA_KONKURSU.md) · [plan prac](doc/plan-prac.md) · [plan implementacji](doc/plan-implementacji.md) · [stan realizacji](doc/stan-realizacji.md)
+Dokumentacja projektu: [jak działa aplikacja](doc/jak-dziala-aplikacja.md) · [wymagania konkursu](doc/WYMAGANIA_KONKURSU.md)

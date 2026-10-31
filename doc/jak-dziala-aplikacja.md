@@ -1,6 +1,6 @@
 # Jak działa aplikacja „Kraków bez barier”
 
-Stan na **4.10.2026**, po refaktoryzacji na gałęzi `plany-konta`. Dokument opisuje działanie aplikacji od strony kodu: co uruchamia się w przeglądarce, co na hoście, skąd biorą się dane i jak przebiegają najważniejsze operacje. Uzupełnia [README](../README.md) (opis dla użytkownika i wdrożenie) i [stan realizacji](stan-realizacji.md) (historia prac i lista problemów).
+Stan na **4.10.2026**, po refaktoryzacji na gałęzi `plany-konta`. Dokument opisuje działanie aplikacji od strony kodu: co uruchamia się w przeglądarce, co na hoście, skąd biorą się dane i jak przebiegają najważniejsze operacje. Uzupełnia [README](../README.md) (opis dla użytkownika i wdrożenie).
 
 ## Spis treści
 
@@ -437,5 +437,3 @@ Interfejs (strony Razor, moduły JS) nie ma testów automatycznych; sprawdza si�
 - **Dane.** OpenStreetMap ma niepełne dane o dostępności i prawie żadnych o hałasie i tłumie; GTFS nie mówi nic o dostępności pojazdów i przystanków.
 - **Konto bez e-maila:** hasła nie da się odzyskać ani zmienić, konta ani zdjęcia nie da się usunąć z poziomu aplikacji.
 - **Ponowny wniosek firmy** po odrzuceniu albo cofnięciu zaczyna od nowa: nowe zatwierdzenie nadaje nowy numer certyfikatu.
-
-Pełna lista problemów i decyzji do podjęcia: [stan-realizacji.md](stan-realizacji.md).
