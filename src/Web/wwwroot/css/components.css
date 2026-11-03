@@ -1199,6 +1199,19 @@ legend {
     padding: 0;
 }
 
+.gaps-scatter {
+    display: block;
+    width: 100%;
+    max-width: 40rem;
+    height: auto;
+}
+
+.gaps-scatter-grid { stroke: var(--md-sys-color-outline-variant); stroke-width: 1; }
+.gaps-scatter-tick { font-size: 11px; fill: var(--md-sys-color-on-surface-variant); }
+.gaps-scatter-axis { font-size: 12px; fill: var(--md-sys-color-on-surface); }
+.gaps-scatter-dot { fill: var(--md-sys-color-primary); }
+.gaps-scatter-label { font-size: 11px; font-weight: 600; fill: var(--md-sys-color-on-surface); }
+
 .gaps-legend-swatch {
     display: inline-block;
     width: 1.25rem;
