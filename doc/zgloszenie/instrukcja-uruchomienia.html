@@ -13,12 +13,13 @@
 <h2>1. Demo online (bez instalacji)</h2>
 <p>Aplikacja działa pod adresem <strong>https://jakub.byst.re</strong> w każdej nowoczesnej przeglądarce, na komputerze i telefonie. Nie wymaga konta.</p>
 <div class="box">
-<strong>Ścieżka na 5 minut</strong>
+<strong>Ścieżka na 6 minut</strong>
 <ol>
   <li><strong>Strona główna → „Pokaż przykład”.</strong> Aplikacja ustawia profil „Wózek ręczny” i otwiera kartę Urzędu Miasta Krakowa: status, powody oceny, źródło i data każdej cechy, najbliższe koperty ZDMK. Cechy oznaczone „dane demonstracyjne” są danymi zespołu.</li>
   <li><strong>„Profil potrzeb”</strong>: wybierz inny profil (np. „Spektrum autyzmu” albo „Senior”) i wróć do tej samej karty: ocena i powody się zmieniają.</li>
   <li><strong>„Miejsca” → „Dodaj do planu”</strong> przy 3–4 miejscach, potem <strong>„Plan”</strong>: kolejność, trasa po ulicach, ostrzeżenia o hałasie na odcinkach, ławki i toalety na przerwy, przejazd tramwajem lub autobusem według rozkładu, „Czytaj na głos”.</li>
   <li><strong>„Luki w danych i bariery”</strong> (<code>/miasto</code>, link na stronie głównej i w stopce): raport dla urzędu z danymi o dzielnicach, udogodnieniami w zasięgu mieszkańców i seniorów (wykres korelacji), listą 20 miejsc do sprawdzenia i eksportem CSV/GeoJSON.</li>
+  <li><strong>„Planer inwestycji”</strong> (<code>/planer-inwestycji</code>, przycisk na stronie raportu): które przystanki doposażyć w wiaty i które toalety dostosować najpierw, ilu mieszkańców i seniorów zyska dostęp; suwak zmienia liczbę inwestycji.</li>
   <li><strong>„Panel urzędnika”</strong> (<code>/urzednik</code>): dane logowania konta demonstracyjnego podajemy w treści maila zgłoszeniowego. W panelu widać zgłoszenia mieszkańców, potwierdzanie braków i barier oraz zakładkę „Braki danych”.</li>
 </ol>
 </div>
@@ -55,7 +56,7 @@ docker run -p 8080:8080 \
 <p>Aplikacja działa pod adresem <code>http://localhost:8080</code>. Zmienne środowiskowe mają te same nazwy co ustawienia, z <code>__</code> zamiast <code>:</code>. Wdrożenie produkcyjne (GitHub Actions → VPS) opisuje README, sekcja „Wdrożenie na Mikrusa”.</p>
 
 <h2>4. Testy, audyt dostępności, odświeżenie danych</h2>
-<pre>dotnet test CracowWithoutBarriers.slnx                 # 300 testów jednostkowych
+<pre>dotnet test CracowWithoutBarriers.slnx                 # 304 testy jednostkowe
 
 cd tools/a11y &amp;&amp; npm ci &amp;&amp; npx playwright install chromium
 npm run audit                                           # axe-core, WCAG 2.2 A/AA (aplikacja musi działać)
