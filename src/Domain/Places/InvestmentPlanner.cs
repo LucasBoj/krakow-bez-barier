@@ -7,7 +7,13 @@ public enum Investment
     StopShelter,
 
     /// <summary>Dostosowanie istniejącej toalety publicznej dla osób z niepełnosprawnościami.</summary>
-    AccessibleToilet
+    AccessibleToilet,
+
+    /// <summary>Ławka na przystanku, który jej nie ma (ważne dla seniorów i osób, które nie mogą długo stać).</summary>
+    StopBench,
+
+    /// <summary>Oznaczenia dotykowe (ścieżki, pola uwagi) na przystanku, który ich nie ma (ważne dla osób niewidomych).</summary>
+    StopTactilePaving
 }
 
 /// <param name="Place">Istniejący obiekt do doposażenia.</param>
@@ -37,18 +43,44 @@ public static class InvestmentPlanner
     public const int PickCount = 10;
 
     public const string Rule =
-        "Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w rejestrze ZTP; OSM podaje brak albo nie podaje nic) " +
-        "i toalety publiczne bez potwierdzonego dostosowania dla osób z niepełnosprawnościami. Dla każdego kandydata liczymy stałych mieszkańców " +
+        "Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w rejestrze ZTP; OSM podaje brak albo nie podaje nic), " +
+        "bez ławki albo bez oznaczeń dotykowych (według OSM: brak albo brak informacji) oraz toalety publiczne bez potwierdzonego dostosowania " +
+        "dla osób z niepełnosprawnościami. Dla każdego kandydata liczymy stałych mieszkańców " +
         "heksagonów 100 m, których środek leży do 300 m od obiektu i którzy dziś nie mają tego udogodnienia w zasięgu. Wybieramy po kolei obiekt " +
         "z największym takim zyskiem; po każdym wyborze jego mieszkańcy nie liczą się już u kolejnych kandydatów (zachłanny wybór maksymalnego pokrycia). " +
         "Seniorzy to szacunek: zyskujący mieszkańcy × udział seniorów w dzielnicy. Ranking nie uwzględnia kosztu ani możliwości technicznych.";
 
-    public static Amenity AmenityOf(Investment investment) => investment switch
+    /// <summary>Obiekt, który już daje to, co inwestycja: przystanek z wiatą, ławką albo oznaczeniami, toaleta dostosowana.</summary>
+    public static bool Provides(Place place, Investment investment) => investment switch
     {
-        Investment.StopShelter => Amenity.ShelteredStop,
-        Investment.AccessibleToilet => Amenity.AccessibleToilet,
-        _ => throw new ArgumentOutOfRangeException(nameof(investment))
+        Investment.StopShelter => ResidentsReach.Provides(place, Amenity.ShelteredStop),
+        Investment.AccessibleToilet => ResidentsReach.Provides(place, Amenity.AccessibleToilet),
+        Investment.StopBench => place.Category == PlaceCategory.Stop && Yes(place, FeatureKey.Benches),
+        Investment.StopTactilePaving => place.Category == PlaceCategory.Stop && Yes(place, FeatureKey.TactilePaving),
+        _ => false
     };
+
+    /// <summary>Nazwa pliku CSV z planem (strona i polecenie report).</summary>
+    public static string FileName(Investment investment) => investment switch
+    {
+        Investment.StopShelter => "inwestycje-wiaty.csv",
+        Investment.AccessibleToilet => "inwestycje-toalety.csv",
+        Investment.StopBench => "inwestycje-lawki.csv",
+        Investment.StopTactilePaving => "inwestycje-oznaczenia-dotykowe.csv",
+        _ => $"inwestycje-{investment}.csv"
+    };
+
+    /// <summary>Nazwa rodzaju inwestycji do raportu.</summary>
+    public static string Title(Investment investment) => investment switch
+    {
+        Investment.StopShelter => "Wiaty na przystankach",
+        Investment.AccessibleToilet => "Dostosowanie toalet publicznych",
+        Investment.StopBench => "Ławki na przystankach",
+        Investment.StopTactilePaving => "Oznaczenia dotykowe na przystankach",
+        _ => investment.ToString()
+    };
+
+    private static bool Yes(Place place, FeatureKey key) => place.Feature(key) is { State: FeatureState.Yes, IsDemoData: false };
 
     /// <summary>
     /// Obiekt, który można doposażyć: ma kategorię udogodnienia, ale samego udogodnienia nie (dane demonstracyjne się nie liczą).
@@ -56,8 +88,9 @@ public static class InvestmentPlanner
     /// </summary>
     public static bool IsCandidate(Place place, Investment investment) => investment switch
     {
-        Investment.StopShelter => place.Category == PlaceCategory.Stop && !ResidentsReach.Provides(place, Amenity.ShelteredStop),
-        Investment.AccessibleToilet => place.Category == PlaceCategory.Toilet && !ResidentsReach.Provides(place, Amenity.AccessibleToilet)
+        Investment.StopShelter or Investment.StopBench or Investment.StopTactilePaving =>
+            place.Category == PlaceCategory.Stop && !Provides(place, investment),
+        Investment.AccessibleToilet => place.Category == PlaceCategory.Toilet && !Provides(place, investment)
                                        && !place.Name.Contains("klient", StringComparison.OrdinalIgnoreCase),
         _ => false
     };
@@ -65,13 +98,15 @@ public static class InvestmentPlanner
     public static InvestmentPlan Plan(Investment investment, ResidentsGrid grid, IEnumerable<Place> places, DistrictMap? districts = null,
         int count = PickCount)
     {
-        var bit = 1 << (int)AmenityOf(investment);
         var seniorShare = grid.Districts.ToDictionary(d => d.Number, d => d.SeniorShare);
-        var uncovered = new bool[grid.Residents.Count];
-        for (var i = 0; i < uncovered.Length; i++)
-            uncovered[i] = (grid.Reach[i] & bit) == 0;
-
         var all = places as IReadOnlyCollection<Place> ?? places.ToList();
+        // Zasięg dziś liczymy z tych samych obiektów, które planer zna, więc każdy rodzaj inwestycji ma spójny punkt wyjścia.
+        var uncovered = Enumerable.Repeat(true, grid.Residents.Count).ToArray();
+        foreach (var provider in all.Where(p => Provides(p, investment)))
+            foreach (var i in CellsNear(grid, provider.Location))
+                uncovered[i] = false;
+        var withoutBefore = Enumerable.Range(0, uncovered.Length).Where(i => uncovered[i]).Sum(i => grid.Residents[i]);
+
         var stops = all.Where(p => p.Category == PlaceCategory.Stop).ToList();
         var candidates = all.Where(p => IsCandidate(p, investment)).ToList();
         // Dla każdego kandydata heksagony bez udogodnienia w promieniu; potem już tylko je przeliczamy.
@@ -118,9 +153,7 @@ public static class InvestmentPlanner
             picks.Add(new InvestmentPick(place, bestGain, (int)Math.Round(seniors), cumulative, districts?.Find(place.Location)?.Name, nearStop));
         }
 
-        var residents = grid.Residents.Sum();
-        var withoutBefore = Enumerable.Range(0, grid.Residents.Count).Where(i => (grid.Reach[i] & bit) == 0).Sum(i => grid.Residents[i]);
-        return new InvestmentPlan(investment, candidates.Count, residents, withoutBefore, picks);
+        return new InvestmentPlan(investment, candidates.Count, grid.Residents.Sum(), withoutBefore, picks);
     }
 
     private static IEnumerable<int> CellsNear(ResidentsGrid grid, GeoPoint point)

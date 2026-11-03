@@ -30,8 +30,7 @@ if (command == "report")
     await File.WriteAllTextAsync(Path.Combine(exportDir, "priorytety.csv"), CityGapsExport.PrioritiesCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "mieszkancy.csv"), CityGapsExport.ResidentsCsv(report));
     foreach (var plan in investments)
-        await File.WriteAllTextAsync(Path.Combine(exportDir, plan.Investment == Investment.StopShelter ? "inwestycje-wiaty.csv" : "inwestycje-toalety.csv"),
-            CityGapsExport.InvestmentCsv(plan));
+        await File.WriteAllTextAsync(Path.Combine(exportDir, InvestmentPlanner.FileName(plan.Investment)), CityGapsExport.InvestmentCsv(plan));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "raport.geojson"), CityGapsExport.GeoJson(report, districts, []));
     Console.WriteLine(markdown);
     return 0;

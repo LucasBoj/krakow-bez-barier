@@ -10,10 +10,10 @@ public class InvestmentPlannerTests
         new(id, "krakow", name ?? id, category, lat, lon, null, null, features);
 
     // 0,004° długości to ok. 286 m, 0,01° to ok. 715 m (szerokość 50°).
-    // Heksagony: A (100 os.) i B (300 os.) obok siebie, C (50 os.) daleko na wschodzie; B ma już wiatę w zasięgu.
+    // Heksagony: A (100 os.) i B (300 os.) obok siebie, C (50 os.) daleko na wschodzie.
     private static ResidentsGrid Grid() => new("test", new DateOnly(2024, 6, 30), new DateOnly(2025, 12, 31), 300,
         Lat: [50.0, 50.0, 50.0], Lon: [19.900, 19.904, 19.930], Residents: [100, 300, 50], District: [1, 1, 2],
-        Reach: [0, 1 << (int)Amenity.ShelteredStop, 0],
+        Reach: [0, 0, 0],
         Districts: [new DistrictResidents(1, "Zachód", 1000, 200, 50), new DistrictResidents(2, "Wschód", 1000, 500, 50)]);
 
     [Fact]
@@ -29,10 +29,11 @@ public class InvestmentPlannerTests
     [Fact]
     public void Greedy_plan_counts_only_residents_still_without_access()
     {
-        // Przystanek przy A obejmuje A i B, ale B ma już wiatę: zysk to tylko A (100).
+        // Przystanek przy A obejmuje A i B, ale B ma już wiatę w zasięgu (przystanek z wiatą 0,006° na wschód od A): zysk to tylko A (100).
         // Przystanek przy C daje 50. Drugi przystanek przy A po pierwszym wyborze nie daje już nic.
         var places = new[]
         {
+            P("stop-sheltered", PlaceCategory.Stop, 50.0, 19.906, null, F(FeatureKey.StopShelter)),
             P("stop-a", PlaceCategory.Stop, 50.0, 19.901),
             P("stop-a2", PlaceCategory.Stop, 50.0, 19.900),
             P("stop-c", PlaceCategory.Stop, 50.0, 19.930)
@@ -66,6 +67,27 @@ public class InvestmentPlannerTests
 
         Assert.Equal("toilet-a", plan.Picks.Single().Place.Id);
         Assert.Equal("Wschodnia 01", plan.Picks.Single().NearStop);
+    }
+
+    [Fact]
+    public void Bench_and_tactile_plans_use_stops_that_already_have_them_as_coverage()
+    {
+        var places = new[]
+        {
+            P("stop-bench", PlaceCategory.Stop, 50.0, 19.930, null, F(FeatureKey.Benches), F(FeatureKey.TactilePaving, FeatureState.No)),
+            P("stop-bare", PlaceCategory.Stop, 50.0, 19.901, null, F(FeatureKey.Benches, FeatureState.No))
+        };
+
+        var bench = InvestmentPlanner.Plan(Investment.StopBench, Grid(), places);
+        var tactile = InvestmentPlanner.Plan(Investment.StopTactilePaving, Grid(), places);
+
+        // Ławka jest już przy C, więc ławka przy A daje A i B (400); oznaczeń nie ma nigdzie, więc oba przystanki są kandydatami.
+        Assert.Equal(400, bench.WithoutBefore);
+        Assert.Equal("stop-bare", bench.Picks.Single().Place.Id);
+        Assert.Equal(400, bench.Gained);
+        Assert.Equal(2, tactile.Candidates);
+        Assert.Equal(450, tactile.Gained);
+        Assert.Equal("inwestycje-lawki.csv", InvestmentPlanner.FileName(Investment.StopBench));
     }
 
     [Fact]
