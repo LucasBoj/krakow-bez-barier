@@ -5,6 +5,9 @@ namespace Web.Endpoints;
 
 public static class RouteEndpoints
 {
+    /// <summary>Limit zapytań o trasę z jednego adresu IP (chroni dzienny limit klucza OpenRouteService).</summary>
+    public const string RouteLimit = "route";
+
     /// <summary>Pośrednik do silnika routingu. Klucz API zostaje na hoście.</summary>
     public static IEndpointRouteBuilder MapRouteEndpoints(this IEndpointRouteBuilder app)
     {
@@ -22,7 +25,7 @@ public static class RouteEndpoints
 
             loggers.CreateLogger("Routing").LogWarning("Routing nieudany: {Error}", result.Error);
             return Results.Problem("Silnik routingu jest niedostępny.", statusCode: StatusCodes.Status502BadGateway);
-        });
+        }).RequireRateLimiting(RouteLimit);
         return app;
     }
 
