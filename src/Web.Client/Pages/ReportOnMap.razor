@@ -1,4 +1,4 @@
-@page "/zglos"
+﻿@page "/zglos"
 @inject AppState State
 @inject ISender Sender
 @inject BrowserLocation Location
@@ -28,15 +28,21 @@
 {
     <div class="row g-3">
         <div class="col-lg-7">
+            @* Instrukcja nad mapą, jako wyraźny krok: pod mapą była łatwa do przeoczenia. *@
+            <p class="map-step" role="status">
+                <span class="map-step__icon" aria-hidden="true"><span class="msym">@(_point is null ? "add_location_alt" : "check")</span></span>
+                <span>
+                    <strong>@(_point is null ? "Kliknij na mapie miejsce, w którym jest utrudnienie." : "Punkt zaznaczony.")</strong>
+                    @(_point is { } point
+                        ? $" {point.Lat:F5}, {point.Lon:F5}. Możesz przeciągnąć pinezkę albo kliknąć w inne miejsce."
+                        : " Potem opisz je w formularzu obok.")
+                    <span class="map-step__hint">Z klawiatury: przejdź do pinezki klawiszem Tab i przesuwaj ją strzałkami.</span>
+                </span>
+            </p>
             <MapView @key="Target.Point" Label="Mapa: wskaż punkt z utrudnieniem" Center="State.CityCenter" Zoom="State.CityZoom"
                      Markers="_hazardMarkers" PickPoint="_point" PickLabel="Zgłaszany punkt"
                      OnPointPicked="SetPoint" OnMarkerSelected="SelectHazard" />
-            <p class="small mt-2 mb-1" role="status">
-                @(_point is { } point
-                    ? $"Zgłaszany punkt: {point.Lat:F5}, {point.Lon:F5}. Możesz przeciągnąć pinezkę albo kliknąć w inne miejsce."
-                    : "Kliknij na mapie miejsce, w którym jest utrudnienie.")
-                Z klawiatury: przejdź do pinezki klawiszem Tab i przesuwaj ją strzałkami.
-            </p>
+            <div class="mt-2"></div>
             <button type="button" class="btn btn-outline-primary" disabled="@_locating" @onclick="UseMyLocationAsync">
                 <span class="msym" aria-hidden="true">my_location</span> @(_locating ? "Ustalam lokalizację…" : "Jestem tutaj: użyj mojej lokalizacji")
             </button>
@@ -145,8 +151,9 @@ else
             </div>
             <MapView @key="Target.Place" Label="Mapa: wybierz miejsce, którego dotyczy zgłoszenie" Center="State.CityCenter" Zoom="State.CityZoom"
                      Markers="_placeMarkers" FitToMarkers="_fitPlaces" OnMarkerSelected="SelectPlace" />
-            <p class="small text-body-secondary mt-2" role="status">
-                @(_places is null ? "Wczytuję miejsca…" : $"Na mapie: {_places.Count} miejsc w trybie „{Labels.Of(State.Mode)}”. Kliknij pinezkę albo wybierz miejsce z listy.")
+            <p class="map-step mt-2" role="status">
+                <span class="map-step__icon" aria-hidden="true"><span class="msym">location_on</span></span>
+                <span>@(_places is null ? "Wczytuję miejsca…" : $"Na mapie: {_places.Count} miejsc w trybie „{Labels.Of(State.Mode)}”. Kliknij pinezkę albo wybierz miejsce z listy.")</span>
             </p>
             @if (_places is { Count: > 0 and <= MaxListedPlaces })
             {
