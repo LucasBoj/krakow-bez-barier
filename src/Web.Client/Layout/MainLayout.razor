@@ -72,23 +72,19 @@
 </main>
 
 <footer class="app-footer container">
-    Dane o miejscach: @string.Join("; ", State.City?.Sources ?? ["© autorzy OpenStreetMap (ODbL)"]).
-    @if (State.City is null or { Coverage: CityCoverage.Full })
-    {
-        <text>Komunikacja miejska: rozkład GTFS Zarządu Transportu Publicznego w Krakowie. Cechy oznaczone jako „dane demonstracyjne” nie są zweryfikowane.</text>
-    }
-    else
-    {
-        <text>Dla tego miasta nie mamy rozkładów komunikacji miejskiej.</text>
-    }
-    Profil potrzeb jest zapisany tylko na tym urządzeniu, także gdy masz konto.
     <ul class="app-footer__links">
-        <li><a href="zrodla-danych">Źródła danych</a></li>
         <li><a href="miasto">Luki w danych i bariery</a></li>
+        <li><a href="urzednik">Panel urzędnika</a></li>
+        <li><a href="zrodla-danych">Źródła danych</a></li>
         <li><a href="o-projekcie">O projekcie</a></li>
         <li><a href="konto/firma">Konto firmowe</a></li>
-        <li><a href="urzednik">Panel urzędnika</a></li>
     </ul>
+    @* Pełne przypisy z datami są na stronie „Źródła danych”; tu tylko uznanie autorstwa i odnośnik. *@
+    <p class="app-footer__note">
+        Dane: © autorzy OpenStreetMap (ODbL)@(State.City is null or { Coverage: CityCoverage.Full } ? ", Gmina Miejska Kraków (MSIP), ZTP, ZDMK" : "")
+        · <a href="zrodla-danych">pełny spis i licencje</a>. Cechy oznaczone „dane demonstracyjne” nie są zweryfikowane.
+        Profil potrzeb zostaje na Twoim urządzeniu.
+    </p>
 </footer>
 
 <AppTour @ref="_tour" />

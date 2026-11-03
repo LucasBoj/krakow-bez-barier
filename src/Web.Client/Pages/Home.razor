@@ -5,18 +5,45 @@
 
 <PageTitle>Kraków bez barier</PageTitle>
 
-<div class="page-header" data-tour="home-intro">
+<section class="hero" data-tour="home-intro" aria-labelledby="hero-heading">
     @if (State.User is { } user)
     {
-        <h1>Witaj, @user.Login</h1>
-        <p>Twój Kraków bez barier: profil, plan i zgłoszenia w jednym miejscu.</p>
+        <h1 id="hero-heading" class="hero__title">Witaj, @user.Login</h1>
+        <p class="hero__lead">Twój Kraków bez barier: profil, plan i zgłoszenia w jednym miejscu.</p>
     }
     else
     {
-        <h1>Kraków bez barier</h1>
-        <p>Miejsca i trasy ocenione pod Twoje potrzeby. Każdy ma prawo do dostępu.</p>
+        <h1 id="hero-heading" class="hero__title">Kraków bez barier</h1>
+        <p class="hero__lead">Sprawdź, czy miejsce i droga do niego są dostępne właśnie dla Ciebie: na wózku, z dzieckiem, bez wzroku, w ciszy. Ocena dla 11 profili potrzeb, zawsze z uzasadnieniem i źródłem danych.</p>
     }
-</div>
+    <div class="hero__actions">
+        <a class="btn hero__btn-primary btn-lg" href="profil">@(State.Profile.IsEmpty ? "Ustaw swój profil potrzeb" : "Zmień profil potrzeb")</a>
+        <button type="button" class="btn hero__btn-secondary btn-lg" @onclick="ShowExampleAsync">Pokaż przykład</button>
+    </div>
+    @if (_facts is { } facts)
+    {
+        <dl class="hero__facts">
+            <div class="hero__fact">
+                <dt>miejsc w katalogu, ocenianych pod Twój profil</dt>
+                <dd>@facts.Places.ToString("N0", Pl)</dd>
+            </div>
+            @if (facts.CityDatasets is { } datasets)
+            {
+                <div class="hero__fact">
+                    <dt>zbiorów otwartych danych Miasta Krakowa</dt>
+                    <dd>@datasets</dd>
+                </div>
+            }
+            @if (facts.WithoutAccessibleToilet is { } share)
+            {
+                <div class="hero__fact">
+                    <dt>mieszkańców bez dostosowanej toalety publicznej w promieniu 300 m</dt>
+                    <dd>@Pct(share)</dd>
+                </div>
+            }
+        </dl>
+    }
+</section>
 
 <div>
     @if (State.User is not null)
@@ -107,7 +134,7 @@
         <h2 id="city-heading" class="section-title">Zobacz w minutę</h2>
         <div class="row g-4">
             <div class="col-md-6 col-xl-3">
-                <div class="card card-body h-100">
+                <div class="card card-body h-100 feature-card">
                     <div class="feature-icon" aria-hidden="true"><span class="msym">accessible</span></div>
                     <h3 class="h5 mt-3">Przykład: wózek w urzędzie</h3>
                     <p class="text-body-secondary">Ocena Urzędu Miasta Krakowa dla osoby na wózku ręcznym: udogodnienia, braki danych, źródło i data każdej informacji (część cech to oznaczone dane demonstracyjne).</p>
@@ -116,7 +143,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-xl-3">
-                <div class="card card-body h-100">
+                <div class="card card-body h-100 feature-card">
                     <div class="feature-icon" aria-hidden="true"><span class="msym">map</span></div>
                     <h3 class="h5 mt-3">Luki w danych i bariery</h3>
                     <p class="text-body-secondary">Dla urzędu: pokrycie danymi w dzielnicach, udogodnienia w zasięgu mieszkańców i seniorów, 20 miejsc do sprawdzenia, eksport CSV i GeoJSON.</p>
@@ -124,7 +151,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-xl-3">
-                <div class="card card-body h-100">
+                <div class="card card-body h-100 feature-card">
                     <div class="feature-icon" aria-hidden="true"><span class="msym">verified</span></div>
                     <h3 class="h5 mt-3">Panel urzędnika</h3>
                     <p class="text-body-secondary">Zgłoszenia mieszkańców: urzędnik potwierdza barierę, a ocena miejsc i trasy uwzględniają ją od razu.</p>
@@ -132,7 +159,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-xl-3">
-                <div class="card card-body h-100">
+                <div class="card card-body h-100 feature-card">
                     <div class="feature-icon" aria-hidden="true"><span class="msym">location_on</span></div>
                     <h3 class="h5 mt-3">Otwarte dane miasta</h3>
                     <p class="text-body-secondary">Każdy zbiór z adresem, licencją, datą i sposobem aktualizacji, w tym 8 zbiorów z portali miasta (MSIP).</p>
@@ -149,7 +176,7 @@
             <h2 id="features-heading" class="section-title">Co tu znajdziesz</h2>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card card-body h-100">
+                    <div class="card card-body h-100 feature-card">
                         <div class="feature-icon" aria-hidden="true"><span class="msym">explore</span></div>
                         <h3 class="h5 mt-3">Miejsca ocenione pod Ciebie</h3>
                         <p class="text-body-secondary">Ustaw profil potrzeb, a pokażemy, które miejsca są dostępne, a gdzie czeka bariera. Brak danych nigdy nie udaje dostępności.</p>
@@ -157,7 +184,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card card-body h-100">
+                    <div class="card card-body h-100 feature-card">
                         <div class="feature-icon" aria-hidden="true"><span class="msym">route</span></div>
                         <h3 class="h5 mt-3">Plan trasy</h3>
                         <p class="text-body-secondary">Trasa po ulicach dobrana do profilu, podjazd komunikacją miejską i ostrzeżenia o utrudnieniach potwierdzonych przez urząd.</p>
@@ -165,7 +192,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card card-body h-100">
+                    <div class="card card-body h-100 feature-card">
                         <div class="feature-icon" aria-hidden="true"><span class="msym">add_location_alt</span></div>
                         <h3 class="h5 mt-3">Zgłoszenia do urzędu</h3>
                         <p class="text-body-secondary">Zaznacz na mapie przeszkodę, hałas albo tłum lub zgłoś brak udogodnienia w miejscu. Do wysłania potrzebne jest konto.</p>
@@ -191,12 +218,21 @@
 </div>
 
 @code {
+    // WebAssembly nie ma danych kultur, więc polski separator tysięcy (spacja) ustawiamy sami.
+    private static readonly System.Globalization.NumberFormatInfo Pl = new() { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
+
     private MyReportsSummary? _summary;
     private string? _summaryError;
+    private HomeFacts? _facts;
+
+    private static string Pct(double share) => (share * 100).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + "%";
 
     protected override async Task OnInitializedAsync()
     {
         await State.EnsureLoadedAsync();
+        // Liczby są z lekkich plików; bez nich pierwszy ekran po prostu ich nie pokazuje.
+        if (await Sender.Send(new GetHomeFactsQuery(State.CityId)) is { IsSuccess: true } facts)
+            _facts = facts.Value;
         if (State.User is null)
             return;
 

@@ -23,6 +23,35 @@ else
         „Bez danych” nie liczy hałasu otoczenia z mapy hałasu, bo ta obejmuje każde miejsce. <a href="zrodla-danych">Źródła danych</a>
     </p>
 
+    var weakestDistrict = r.Districts.Count == 0 ? null : r.Districts.MinBy(d => d.Stats.Share(d.Stats.WithWheelchair));
+    <section aria-labelledby="gaps-insights" class="mb-2">
+        <h2 id="gaps-insights" class="h4">Najważniejsze wnioski</h2>
+        <div class="insights">
+            <p class="insight mb-0">
+                <span class="insight__value">@Pct(r.Total.Share(r.Total.WithoutAny))</span>
+                <span class="insight__text">miejsc w katalogu (@r.Total.WithoutAny.ToString("N0", Pl) z @r.Total.Places.ToString("N0", Pl)) nie ma żadnej informacji o dostępności</span>
+            </p>
+            @if (r.Residents is { } top)
+            {
+                <p class="insight mb-0">
+                    <span class="insight__value">@Pct(1 - top.Of(Amenity.AccessibleToilet).Share)</span>
+                    <span class="insight__text">mieszkańców nie ma w promieniu @top.RadiusM.ToString("0") m toalety publicznej dostosowanej dla osób z niepełnosprawnościami</span>
+                </p>
+            }
+            @if (weakestDistrict is not null)
+            {
+                <p class="insight mb-0">
+                    <span class="insight__value">@Pct(weakestDistrict.Stats.Share(weakestDistrict.Stats.WithWheelchair))</span>
+                    <span class="insight__text">miejsc w dzielnicy @weakestDistrict.Roman @weakestDistrict.Name ma dane o wejściu dla wózków, najmniej w mieście</span>
+                </p>
+            }
+            <p class="insight mb-0">
+                <span class="insight__value">@r.PriorityCandidates.ToString("N0", Pl)</span>
+                <span class="insight__text">urzędów, placówek zdrowia, kultury i szkół bez danych o wejściu dla wózków; 20 z nich warto sprawdzić najpierw (lista niżej)</span>
+            </p>
+        </div>
+    </section>
+
     <section aria-labelledby="gaps-total" class="mb-4">
         <h2 id="gaps-total" class="h4">Wskaźniki dla całego miasta</h2>
         <div class="row g-3">
@@ -84,6 +113,9 @@ else
                 </figcaption>
             </figure>
 
+            <details class="collapsible">
+            <summary>Pokaż tabelę: mieszkańcy 18 dzielnic</summary>
+            <div class="collapsible__body">
             <div class="table-responsive" tabindex="0" role="region" aria-labelledby="gaps-residents-caption">
                 <table class="table table-sm align-middle">
                     <caption id="gaps-residents-caption" class="caption-top">Mieszkańcy dzielnic i udogodnienie „@ResidentsReach.Label(_amenity)” w promieniu @residents.RadiusM.ToString("0") m</caption>
@@ -115,6 +147,8 @@ else
                     </tbody>
                 </table>
             </div>
+            </div>
+            </details>
             <p class="small text-body-secondary">
                 @ResidentsReach.Rule Siatka zameldowań: stan na @residents.GridDate.ToString("dd.MM.yyyy"); wiek mieszkańców dzielnic: stan na @residents.DistrictsDate.ToString("dd.MM.yyyy").
                 Szacunek seniorów bez udogodnienia zakłada, że seniorzy mieszkają w dzielnicy tak samo jak pozostali mieszkańcy.
@@ -171,15 +205,25 @@ else
                     <text>@r.OutsideDistricts miejsc leży poza granicami dzielnic (na skraju miasta).</text>
                 }
             </p>
-            @StatsTable("gaps-districts-table", "Pokrycie danymi w dzielnicach", "Dzielnica",
-                r.Districts.Select(d => ($"{d.Roman} {d.Name}", d.Stats, (int?)d.Hazards)).ToList())
+            <details class="collapsible">
+                <summary>Pokaż tabelę: pokrycie danymi w 18 dzielnicach</summary>
+                <div class="collapsible__body">
+                    @StatsTable("gaps-districts-table", "Pokrycie danymi w dzielnicach", "Dzielnica",
+                        r.Districts.Select(d => ($"{d.Roman} {d.Name}", d.Stats, (int?)d.Hazards)).ToList())
+                </div>
+            </details>
         }
     </section>
 
     <section aria-labelledby="gaps-groups" class="mb-4">
         <h2 id="gaps-groups" class="h4">Kategorie</h2>
-        @StatsTable("gaps-groups-table", "Pokrycie danymi w kategoriach miejsc", "Kategoria",
-            r.Groups.Select(g => (g.Group, g.Stats, (int?)null)).Prepend(("Razem", r.Total, (int?)null)).ToList())
+        <details class="collapsible">
+            <summary>Pokaż tabelę: pokrycie danymi w kategoriach miejsc</summary>
+            <div class="collapsible__body">
+                @StatsTable("gaps-groups-table", "Pokrycie danymi w kategoriach miejsc", "Kategoria",
+                    r.Groups.Select(g => (g.Group, g.Stats, (int?)null)).Prepend(("Razem", r.Total, (int?)null)).ToList())
+            </div>
+        </details>
     </section>
 
     <section aria-labelledby="gaps-priorities" class="mb-4">
