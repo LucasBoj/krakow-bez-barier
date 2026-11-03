@@ -347,3 +347,26 @@ internal sealed class GetResidentsReachQueryHandler(IResidentsCatalog residents,
             ? Result.Success(ResidentsReach.Build(grid, await districts.GetAsync(query.CityId, ct)))
             : Result.Failure<ResidentsReport>("Brak danych o mieszkańcach dla tego miasta.");
 }
+
+/// <param name="Places">Wszystkie miejsca w katalogu miasta.</param>
+/// <param name="CityDatasets">Zbiory z portali miasta w spisie źródeł; null bez spisu.</param>
+/// <param name="WithoutAccessibleToilet">Udział mieszkańców bez toalety dostosowanej w zasięgu; null bez siatki mieszkańców.</param>
+public sealed record HomeFacts(int Places, int? CityDatasets, double? WithoutAccessibleToilet);
+
+/// <summary>Liczby na stronę główną, z lekkich plików (indeks katalogu, spis źródeł, siatka mieszkańców), bez wczytywania miejsc.</summary>
+public sealed record GetHomeFactsQuery(string CityId) : IQuery<HomeFacts>;
+
+internal sealed class GetHomeFactsQueryHandler(IPlaceCatalog catalog, IDataSourcesCatalog sources, IResidentsCatalog residents)
+    : IQueryHandler<GetHomeFactsQuery, HomeFacts>
+{
+    public async Task<Result<HomeFacts>> Handle(GetHomeFactsQuery query, CancellationToken ct)
+    {
+        var categories = await catalog.GetCategoriesAsync(query.CityId, ct);
+        var report = await sources.GetAsync(query.CityId, ct);
+        var grid = await residents.GetAsync(query.CityId, ct);
+        return Result.Success(new HomeFacts(
+            categories.Sum(c => c.Count),
+            report?.Sources.Count(s => s.CityPortal),
+            grid is null ? null : 1 - ResidentsReach.Build(grid, null).Of(Amenity.AccessibleToilet).Share));
+    }
+}
