@@ -1,0 +1,108 @@
+@page "/o-projekcie"
+@inject ISender Sender
+@inject AppState State
+
+<PageTitle>O projekcie · Kraków bez barier</PageTitle>
+
+<div class="page-header">
+    <h1>O projekcie</h1>
+    <p>Kraków bez barier ocenia dostępność miejsc i tras dla konkretnych potrzeb osoby i pokazuje miastu, gdzie brakuje danych i udogodnień.</p>
+</div>
+
+<section aria-labelledby="about-problem" class="mb-4">
+    <h2 id="about-problem" class="h4">Problem</h2>
+    <p>
+        W Polsce żyje 5,4 mln osób z niepełnosprawnościami (14,3% ludności, NSP 2021), a w Krakowie 184 tys. osób w wieku 60+ (22,8%).
+        Informacje o dostępności są rozproszone i zero-jedynkowe, choć osoba na wózku, osoba niewidoma, osoba w spektrum autyzmu i senior
+        potrzebują zupełnie innych informacji o tym samym budynku. Do tego dochodzi droga: schody, bruk, hałas, brak ławki i toalety.
+    </p>
+    @if (_residents is { } r)
+    {
+        <p>
+            Z danych miasta wynika, że <strong>@Pct(1 - r.Of(Amenity.AccessibleToilet).Share) mieszkańców</strong> nie ma w promieniu @r.RadiusM.ToString("0") m
+            toalety publicznej dostosowanej dla osób z niepełnosprawnościami, a @Pct(1 - r.Of(Amenity.ShelteredStop).Share) nie ma przystanku z wiatą.
+            <a href="miasto">Szczegóły w podziale na dzielnice</a>.
+        </p>
+    }
+    <p class="small text-body-secondary">Źródła: NSP 2021 (niepelnosprawni.gov.pl), Raport o stanie Gminy Miejskiej Kraków za 2024 r., ewidencja ludności i rejestry miasta w MSIP.</p>
+</section>
+
+<section aria-labelledby="about-value" class="mb-4">
+    <h2 id="about-value" class="h4">Co daje i komu</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <h3 class="h5">Mieszkańcom i turystom</h3>
+                <ul class="mb-0">
+                    <li>11 profili potrzeb do łączenia; to samo miejsce dostaje inną ocenę dla każdego profilu, zawsze z uzasadnieniem.</li>
+                    <li>Brak danych nigdy nie oznacza „dostępne”, a sprzeczne źródła są pokazane wprost.</li>
+                    <li>Plan dnia, który da się przejść: trasa dobrana do profilu, hałas na odcinkach, ławki i toalety na odpoczynek, komunikacja miejska.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <h3 class="h5">Urzędowi Miasta</h3>
+                <ul class="mb-0">
+                    <li>Raport <a href="miasto">„Luki w danych i bariery”</a>: pokrycie danymi w dzielnicach, udogodnienia w zasięgu mieszkańców i seniorów, lista miejsc do sprawdzenia.</li>
+                    <li>Zgłoszenia mieszkańców w <a href="urzednik">panelu urzędnika</a>: potwierdzona bariera od razu zmienia ocenę miejsca i trasy.</li>
+                    <li>Eksport CSV i GeoJSON do systemów miasta; aplikacja zwraca miastu nowy zbiór danych o barierach.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <h3 class="h5">Firmom i instytucjom</h3>
+                <ul class="mb-0">
+                    <li>Konto firmowe: hotel, restauracja czy muzeum samo oznacza udogodnienia, a po zatwierdzeniu przez urząd dostaje certyfikat z kodem QR i wyróżnienie na mapie.</li>
+                    <li>Turystyka: informacja o dostępności, której szukają goście z niepełnosprawnościami i seniorzy.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-body h-100">
+                <h3 class="h5">Innym aplikacjom</h3>
+                <ul class="mb-0">
+                    <li>API hosta opisane w OpenAPI (<a href="openapi/v1.json">/openapi/v1.json</a>): trasy dobrane do potrzeb, zgłoszenia, bariery potwierdzone przez urząd.</li>
+                    <li>Połączony katalog miejsc ze źródłem i datą każdej cechy jako otwarte pliki JSON.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section aria-labelledby="about-deploy" class="mb-4">
+    <h2 id="about-deploy" class="h4">Wdrożenie w mieście</h2>
+    <ul>
+        <li><strong>Niski koszt utrzymania:</strong> katalog miejsc i rozkład to pliki statyczne, a serwer obsługuje tylko trasy, konta i zgłoszenia. Demo działa na małym serwerze VPS z bazą w darmowym planie MongoDB Atlas.</li>
+        <li><strong>Aktualne dane bez pracy ręcznej:</strong> import danych miasta to jedno polecenie, które pobiera rejestry z MSIP i można je uruchamiać cyklicznie.</li>
+        <li><strong>Prywatność:</strong> profil potrzeb nie opuszcza urządzenia; do serwera trafiają tylko punkty trasy i trzy parametry (wózek, schody, krawężnik).</li>
+        <li><strong>Inne miasta:</strong> import działa dla każdego miasta z OpenStreetMap i GTFS; dane miejskie podpina się konfiguracją warstw ArcGIS.</li>
+    </ul>
+</section>
+
+<section aria-labelledby="about-next" class="mb-4">
+    <h2 id="about-next" class="h4">Dalszy rozwój</h2>
+    <p>Budynki publiczne z MSIP, komunikacja na żywo (GTFS-RT) i tabor niskopodłogowy, deklaracje dostępności instytucji miejskich, klucze API dla partnerów, tryb offline.</p>
+</section>
+
+<section aria-labelledby="about-team" class="mb-4">
+    <h2 id="about-team" class="h4">Zespół</h2>
+    <p>Pioneer Collective. Kod: <a href="https://github.com/LucasBoj/krakow-bez-barier">github.com/LucasBoj/krakow-bez-barier</a>. Dane: <a href="zrodla-danych">źródła danych</a>.</p>
+</section>
+
+@code {
+    private ResidentsReport? _residents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await State.EnsureLoadedAsync();
+        // Te same liczby co na stronie /miasto; bez siatki mieszkańców akapit po prostu się nie pokazuje.
+        var result = await Sender.Send(new GetResidentsReachQuery(State.CityId));
+        if (result.IsSuccess)
+            _residents = result.Value;
+    }
+
+    // WebAssembly nie ma danych kultur, więc przecinek dziesiętny wstawiamy sami.
+    private static string Pct(double share) => (share * 100).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + "%";
+}

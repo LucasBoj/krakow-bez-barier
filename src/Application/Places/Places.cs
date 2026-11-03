@@ -335,3 +335,15 @@ internal sealed class GetCityGapsQueryHandler(
         return Result.Success(new CityGapsView(CityGaps.Build(places, map, network, known, grid), map, known, verified.IsSuccess));
     }
 }
+
+/// <summary>Same udogodnienia w zasięgu mieszkańców, bez katalogu miejsc (lekkie: siatka i granice dzielnic).</summary>
+public sealed record GetResidentsReachQuery(string CityId) : IQuery<ResidentsReport>;
+
+internal sealed class GetResidentsReachQueryHandler(IResidentsCatalog residents, IDistrictsCatalog districts)
+    : IQueryHandler<GetResidentsReachQuery, ResidentsReport>
+{
+    public async Task<Result<ResidentsReport>> Handle(GetResidentsReachQuery query, CancellationToken ct) =>
+        await residents.GetAsync(query.CityId, ct) is { } grid
+            ? Result.Success(ResidentsReach.Build(grid, await districts.GetAsync(query.CityId, ct)))
+            : Result.Failure<ResidentsReport>("Brak danych o mieszkańcach dla tego miasta.");
+}
