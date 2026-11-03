@@ -50,6 +50,10 @@ else
                 <span class="insight__text">urzędów, placówek zdrowia, kultury i szkół bez danych o wejściu dla wózków; 20 z nich warto sprawdzić najpierw (lista niżej)</span>
             </p>
         </div>
+        @if (r.Residents is not null)
+        {
+            <p class="mb-4"><a class="btn btn-primary" href="planer-inwestycji">Planer inwestycji: co doposażyć najpierw, żeby najwięcej mieszkańców zyskało dostęp</a></p>
+        }
     </section>
 
     <section aria-labelledby="gaps-total" class="mb-4">

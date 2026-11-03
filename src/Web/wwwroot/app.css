@@ -546,6 +546,23 @@ body {
     padding: 0 var(--kbb-space-4) var(--kbb-space-4);
 }
 
+/* Planer inwestycji: suwak na całą szerokość i lista z wyróżnionym zyskiem. */
+.investment-range {
+    width: 100%;
+    min-height: var(--kbb-target);
+    accent-color: var(--md-sys-color-primary);
+}
+
+.investment-list li {
+    margin-bottom: var(--kbb-space-3);
+}
+
+.investment-list__gain {
+    display: block;
+    color: var(--md-sys-color-primary);
+    font-weight: 600;
+}
+
 /* Najważniejsze wnioski raportu: duże liczby z jednym zdaniem. */
 .insights {
     display: grid;

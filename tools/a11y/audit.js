@@ -26,11 +26,12 @@ const PAGES = [
     ['panel urzędnika', 'urzednik'],
     ['źródła danych', 'zrodla-danych'],
     ['luki w danych', 'miasto'],
+    ['planer inwestycji', 'planer-inwestycji'],
     ['o projekcie', 'o-projekcie']
 ];
 
 // Lista miejsc czyta pliki katalogu kilka sekund, więc audyt czeka na pierwszą pozycję, a nie tylko na nagłówek.
-const READY = { miejsca: 'button[aria-label^="Dodaj do planu"]', miasto: '#gaps-residents', 'o-projekcie': '#about-team' };
+const READY = { miejsca: 'button[aria-label^="Dodaj do planu"]', miasto: '#gaps-residents', 'o-projekcie': '#about-team', 'planer-inwestycji': '#inv-list' };
 
 async function open(page, url) {
     await page.goto(BASE + url, { waitUntil: 'networkidle' });

@@ -1,0 +1,155 @@
+@page "/planer-inwestycji"
+@inject ISender Sender
+@inject AppState State
+@inject IJSRuntime JS
+
+<PageTitle>Planer inwestycji · Kraków bez barier</PageTitle>
+
+<CityNav />
+
+<h1>Planer inwestycji</h1>
+<p class="lead">Które istniejące obiekty doposażyć najpierw, żeby jak najwięcej mieszkańców zyskało udogodnienie w promieniu 300 m?
+    Liczone z ewidencji ludności MSIP i rejestrów miasta.</p>
+
+@if (_view is null)
+{
+    <p role="status">Liczę plan dla całego miasta…</p>
+}
+else if (_view.Plans.Count == 0)
+{
+    <p>Dla tego miasta nie mamy danych o mieszkańcach, więc planu nie da się policzyć.</p>
+}
+else
+{
+    var plan = _view.Plans.First(p => p.Investment == _investment);
+    var shown = plan.Picks.Take(_count).ToList();
+    var gained = shown.Count == 0 ? 0 : shown[^1].CumulativeResidents;
+    var seniors = shown.Sum(p => p.Seniors);
+
+    <div class="row g-3 align-items-end mb-3">
+        <div class="col-md-6">
+            <label for="inv-kind" class="form-label">Inwestycja</label>
+            <select id="inv-kind" class="form-select" value="@_investment" @onchange="e => Choose(Enum.Parse<Investment>(e.Value!.ToString()!))">
+                @foreach (var investment in Enum.GetValues<Investment>())
+                {
+                    <option value="@investment">@Title(investment)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="inv-count" class="form-label">Liczba inwestycji: <strong>@_count</strong></label>
+            <input id="inv-count" type="range" class="investment-range" min="1" max="@plan.Picks.Count" step="1" value="@_count"
+                   @oninput="e => _count = int.TryParse(e.Value?.ToString(), out var n) ? n : _count" aria-valuetext="@($"{_count} inwestycji")" />
+        </div>
+    </div>
+
+    <div class="insights" aria-live="polite">
+        <p class="insight mb-0">
+            <span class="insight__value">+@gained.ToString("N0", Pl)</span>
+            <span class="insight__text">mieszkańców zyska @What(plan.Investment) w promieniu 300 m dzięki @_count @(_count == 1 ? "inwestycji" : "inwestycjom")</span>
+        </p>
+        <p class="insight mb-0">
+            <span class="insight__value">ok. @seniors.ToString("N0", Pl)</span>
+            <span class="insight__text">z nich to seniorzy (szacunek według udziału seniorów w dzielnicach)</span>
+        </p>
+        <p class="insight mb-0">
+            <span class="insight__value">@Pct((double)plan.WithoutBefore / plan.Residents) → @Pct((double)(plan.WithoutBefore - gained) / plan.Residents)</span>
+            <span class="insight__text">mieszkańców bez @Without(plan.Investment) w zasięgu: dziś i po inwestycjach</span>
+        </p>
+    </div>
+
+    <section aria-labelledby="inv-map" class="mb-4">
+        <h2 id="inv-map" class="h4">Mapa</h2>
+        <p class="small mb-2">Numery to kolejność inwestycji. Pinezki są poglądowe: obiekty otworzysz z listy niżej.</p>
+        <MapView Label="@($"Planer inwestycji: {Title(plan.Investment).ToLowerInvariant()}, {shown.Count} obiektów")" Areas="_areas" FitToAreas="true" Zoom="11"
+                 Markers="@Markers(shown)" MarkersInteractive="false" />
+    </section>
+
+    <section aria-labelledby="inv-list" class="mb-4">
+        <h2 id="inv-list" class="h4">Kolejność inwestycji</h2>
+        <ol class="investment-list">
+            @foreach (var p in shown)
+            {
+                <li>
+                    <a href="@($"miejsca/{p.Place.Id}")">@p.Place.Name</a>
+                    <span class="text-body-secondary">@Where(p)</span>
+                    <span class="investment-list__gain">+@p.Residents.ToString("N0", Pl) mieszkańców (ok. @p.Seniors.ToString("N0", Pl) seniorów), razem @p.CumulativeResidents.ToString("N0", Pl)</span>
+                </li>
+            }
+        </ol>
+        <p class="small text-body-secondary">Kandydatów: @plan.Candidates.ToString("N0", Pl). Pokazujemy @plan.Picks.Count najlepszych.</p>
+        <button type="button" class="btn btn-outline-primary"
+                @onclick='() => SaveAsync(plan.Investment == Investment.StopShelter ? "inwestycje-wiaty.csv" : "inwestycje-toalety.csv", CityGapsExport.InvestmentCsv(plan))'>
+            Pobierz plan (CSV)
+        </button>
+    </section>
+
+    <p class="small text-body-secondary">
+        <strong>Reguła.</strong> @InvestmentPlanner.Rule
+        @(_view.GridDate is { } date ? $" Siatka zameldowań: stan na {date:dd.MM.yyyy}." : "")
+        Te same liczby odtworzysz poleceniem <code>dotnet run --project src/Tools -- report krakow</code>.
+    </p>
+}
+
+@code {
+    // WebAssembly nie ma danych kultur, więc polski separator tysięcy (spacja) ustawiamy sami.
+    private static readonly System.Globalization.NumberFormatInfo Pl = new() { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
+
+    private InvestmentPlansView? _view;
+    private Investment _investment = Investment.AccessibleToilet;
+    private int _count = InvestmentPlanner.PickCount;
+    private IReadOnlyList<MapArea> _areas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await State.EnsureLoadedAsync();
+        var result = await Sender.Send(new GetInvestmentPlansQuery(State.CityId));
+        if (result.IsFailure)
+            return;
+        _view = result.Value;
+        // Dzielnice tylko jako tło, w jednym jasnym kolorze, żeby numery inwestycji były najważniejsze.
+        _areas = (_view.Districts?.Districts ?? []).Select(d => new MapArea(d.Name, d.Rings, "#EFF3FF", d.Roman)).ToList();
+    }
+
+    private void Choose(Investment investment)
+    {
+        _investment = investment;
+        _count = Math.Min(InvestmentPlanner.PickCount, _view?.Plans.First(p => p.Investment == investment).Picks.Count ?? 0);
+    }
+
+    private static string Title(Investment investment) => investment switch
+    {
+        Investment.StopShelter => "Wiaty na przystankach",
+        Investment.AccessibleToilet => "Dostosowanie toalet publicznych",
+        _ => investment.ToString()
+    };
+
+    private static string What(Investment investment) => investment switch
+    {
+        Investment.StopShelter => "przystanek z wiatą",
+        Investment.AccessibleToilet => "toaletę dostosowaną",
+        _ => ""
+    };
+
+    private static string Without(Investment investment) => investment switch
+    {
+        Investment.StopShelter => "przystanku z wiatą",
+        Investment.AccessibleToilet => "toalety dostosowanej",
+        _ => ""
+    };
+
+    private static string Where(InvestmentPick p) =>
+        string.Join(" · ", new[] { p.Place.Address, p.NearStop is { } stop ? $"przy przystanku {stop}" : null, p.District }
+            .Where(x => !string.IsNullOrEmpty(x)).Prepend(""));
+
+    private static IReadOnlyList<MapMarker> Markers(IReadOnlyList<InvestmentPick> picks) =>
+        picks.Select((p, i) => new MapMarker(p.Place.Id, p.Place.Name, p.Place.Lat, p.Place.Lon, "#BA1A1A", (i + 1).ToString())).ToList();
+
+    private static string Pct(double share) => (share * 100).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + "%";
+
+    private async Task SaveAsync(string fileName, string content)
+    {
+        await using var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/download.js");
+        await module.InvokeVoidAsync("saveText", fileName, "text/csv", content);
+    }
+}
