@@ -1,0 +1,11 @@
+pozycja;id;nazwa;adres;najblizszy_przystanek;dzielnica;szer_geogr;dl_geogr;mieszkancy_zyskuja;seniorzy_zyskuja_szacunek;mieszkancy_narastajaco
+1;osm-node-1330778705;Urząd Marszałkowski 01;;;Krowodrza;50,078840;19,922562;4092;1323;4092
+2;osm-node-13835171213;Wawelska 02;;;Mistrzejowice;50,096856;20,003525;4084;1180;8176
+3;osm-node-10017594995;Bujaka 02;;;Podgórze Duchackie;50,009628;19,948382;3799;1001;11975
+4;osm-node-4548607521;Dąbrowskiej 01;;;Czyżyny;50,078116;20,014918;3506;778;15481
+5;osm-node-10056563078;Nullo 04;;;Grzegórzki;50,060153;19,966687;3477;951;18958
+6;osm-node-1934189728;Wrocławska 02;;;Krowodrza;50,076437;19,927927;3224;1042;22182
+7;osm-node-2424655425;Witosa 02;;;Podgórze Duchackie;50,012431;19,955787;3166;834;25348
+8;osm-node-1737158380;Bochenka 01;;;Podgórze Duchackie;50,010253;19,971172;2900;764;28248
+9;osm-node-10026750200;Aleksandry 01;;;Bieżanów-Prokocim;50,008647;20,018134;2751;738;30999
+10;osm-node-1041653257;Prokocim Rynek 01;;;Bieżanów-Prokocim;50,023739;19,996630;2748;737;33747

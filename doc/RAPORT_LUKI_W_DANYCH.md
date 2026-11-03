@@ -102,7 +102,7 @@ Siatka zameldowań: stan na 30.06.2024, 701483 osób. Ewidencja dzielnic: stan n
 
 ## Planer inwestycji
 
-Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w rejestrze ZTP; OSM podaje brak albo nie podaje nic) i toalety publiczne bez potwierdzonego dostosowania dla osób z niepełnosprawnościami. Dla każdego kandydata liczymy stałych mieszkańców heksagonów 100 m, których środek leży do 300 m od obiektu i którzy dziś nie mają tego udogodnienia w zasięgu. Wybieramy po kolei obiekt z największym takim zyskiem; po każdym wyborze jego mieszkańcy nie liczą się już u kolejnych kandydatów (zachłanny wybór maksymalnego pokrycia). Seniorzy to szacunek: zyskujący mieszkańcy × udział seniorów w dzielnicy. Ranking nie uwzględnia kosztu ani możliwości technicznych.
+Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w rejestrze ZTP; OSM podaje brak albo nie podaje nic), bez ławki albo bez oznaczeń dotykowych (według OSM: brak albo brak informacji) oraz toalety publiczne bez potwierdzonego dostosowania dla osób z niepełnosprawnościami. Dla każdego kandydata liczymy stałych mieszkańców heksagonów 100 m, których środek leży do 300 m od obiektu i którzy dziś nie mają tego udogodnienia w zasięgu. Wybieramy po kolei obiekt z największym takim zyskiem; po każdym wyborze jego mieszkańcy nie liczą się już u kolejnych kandydatów (zachłanny wybór maksymalnego pokrycia). Seniorzy to szacunek: zyskujący mieszkańcy × udział seniorów w dzielnicy. Ranking nie uwzględnia kosztu ani możliwości technicznych.
 
 ### Wiaty na przystankach: 10 z 639 kandydatów, +14819 mieszkańców (ok. 3591 seniorów); bez udogodnienia przed inwestycją: 128626 z 701483
 
@@ -133,3 +133,33 @@ Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w
 | 8 | Toaleta publiczna (przy przystanku ks. Kurzei 03) | Prądnik Czerwony | 2721 | 786 | 29310 |
 | 9 | Toaleta publiczna (przy przystanku Nowy Kleparz 06) | Stare Miasto | 2384 | 760 | 31694 |
 | 10 | Toaleta publiczna (przy przystanku Stradom 05) | Stare Miasto | 2266 | 720 | 33960 |
+
+### Ławki na przystankach: 10 z 678 kandydatów, +13619 mieszkańców (ok. 3381 seniorów); bez udogodnienia przed inwestycją: 127291 z 701483
+
+| # | Obiekt | Dzielnica | Mieszkańcy zyskują | Seniorzy (szacunek) | Narastająco |
+|---|---|---|---|---|---|
+| 1 | Reja 01 | Prądnik Biały | 1911 | 442 | 1911 |
+| 2 | Wawelska 02 | Mistrzejowice | 1684 | 486 | 3595 |
+| 3 | Łagiewniki ZUS 01 | Łagiewniki-Borek Fałęcki | 1655 | 403 | 5250 |
+| 4 | Krokusowa 02 | Dębniki | 1577 | 338 | 6827 |
+| 5 | Powstańców Garaże 02 | Prądnik Czerwony | 1481 | 428 | 8308 |
+| 6 | Rynek Fałęcki 01 | Łagiewniki-Borek Fałęcki | 1198 | 292 | 9506 |
+| 7 | Jasieńskiego 04 | Bieżanów-Prokocim | 1097 | 294 | 10603 |
+| 8 | Architektów Szkoła 01 | Wzgórza Krzesławickie | 1017 | 261 | 11620 |
+| 9 | Polana Żywiecka 01 | Łagiewniki-Borek Fałęcki | 1001 | 233 | 12621 |
+| 10 | ZDMK 01 | Czyżyny | 998 | 204 | 13619 |
+
+### Oznaczenia dotykowe na przystankach: 10 z 1553 kandydatów, +33747 mieszkańców (ok. 9348 seniorów); bez udogodnienia przed inwestycją: 313044 z 701483
+
+| # | Obiekt | Dzielnica | Mieszkańcy zyskują | Seniorzy (szacunek) | Narastająco |
+|---|---|---|---|---|---|
+| 1 | Urząd Marszałkowski 01 | Krowodrza | 4092 | 1323 | 4092 |
+| 2 | Wawelska 02 | Mistrzejowice | 4084 | 1180 | 8176 |
+| 3 | Bujaka 02 | Podgórze Duchackie | 3799 | 1001 | 11975 |
+| 4 | Dąbrowskiej 01 | Czyżyny | 3506 | 778 | 15481 |
+| 5 | Nullo 04 | Grzegórzki | 3477 | 951 | 18958 |
+| 6 | Wrocławska 02 | Krowodrza | 3224 | 1042 | 22182 |
+| 7 | Witosa 02 | Podgórze Duchackie | 3166 | 834 | 25348 |
+| 8 | Bochenka 01 | Podgórze Duchackie | 2900 | 764 | 28248 |
+| 9 | Aleksandry 01 | Bieżanów-Prokocim | 2751 | 738 | 30999 |
+| 10 | Prokocim Rynek 01 | Bieżanów-Prokocim | 2748 | 737 | 33747 |

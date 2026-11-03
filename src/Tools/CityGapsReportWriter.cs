@@ -108,7 +108,7 @@ public static class CityGapsReportWriter
         foreach (var plan in plans)
         {
             md.AppendLine();
-            md.AppendLine($"### {(plan.Investment == Investment.StopShelter ? "Wiaty na przystankach" : "Dostosowanie toalet publicznych")}: " +
+            md.AppendLine($"### {InvestmentPlanner.Title(plan.Investment)}: " +
                           $"{plan.Picks.Count} z {plan.Candidates} kandydatów, +{plan.Gained} mieszkańców (ok. {plan.SeniorsGained} seniorów); " +
                           $"bez udogodnienia przed inwestycją: {plan.WithoutBefore} z {plan.Residents}");
             md.AppendLine();

@@ -79,7 +79,7 @@ else
         </ol>
         <p class="small text-body-secondary">Kandydatów: @plan.Candidates.ToString("N0", Pl). Pokazujemy @plan.Picks.Count najlepszych.</p>
         <button type="button" class="btn btn-outline-primary"
-                @onclick='() => SaveAsync(plan.Investment == Investment.StopShelter ? "inwestycje-wiaty.csv" : "inwestycje-toalety.csv", CityGapsExport.InvestmentCsv(plan))'>
+                @onclick='() => SaveAsync(InvestmentPlanner.FileName(plan.Investment), CityGapsExport.InvestmentCsv(plan))'>
             Pobierz plan (CSV)
         </button>
     </section>
@@ -117,17 +117,14 @@ else
         _count = Math.Min(InvestmentPlanner.PickCount, _view?.Plans.First(p => p.Investment == investment).Picks.Count ?? 0);
     }
 
-    private static string Title(Investment investment) => investment switch
-    {
-        Investment.StopShelter => "Wiaty na przystankach",
-        Investment.AccessibleToilet => "Dostosowanie toalet publicznych",
-        _ => investment.ToString()
-    };
+    private static string Title(Investment investment) => InvestmentPlanner.Title(investment);
 
     private static string What(Investment investment) => investment switch
     {
         Investment.StopShelter => "przystanek z wiatą",
         Investment.AccessibleToilet => "toaletę dostosowaną",
+        Investment.StopBench => "przystanek z ławką",
+        Investment.StopTactilePaving => "przystanek z oznaczeniami dotykowymi",
         _ => ""
     };
 
@@ -135,6 +132,8 @@ else
     {
         Investment.StopShelter => "przystanku z wiatą",
         Investment.AccessibleToilet => "toalety dostosowanej",
+        Investment.StopBench => "przystanku z ławką",
+        Investment.StopTactilePaving => "przystanku z oznaczeniami dotykowymi",
         _ => ""
     };
 

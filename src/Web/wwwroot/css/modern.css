@@ -1,0 +1,265 @@
+/*
+ * Warstwa wyglądu „nowoczesny”: jasne, przestronne powierzchnie, białe karty z miękkim cieniem zamiast szarych pudełek z ramką,
+ * jasny nagłówek i nawigacja z rozmyciem tła. Ładowana po app.css i nadpisuje tylko wygląd: kolory statusów, kontrast
+ * i rozmiary pól klikalnych zostają takie jak w tokenach.
+ */
+:root {
+    --kbb-page-bg: #F4F6FA;
+    --kbb-card-bg: #FFFFFF;
+    --kbb-hairline: #E3E7EE;
+    --kbb-control-border: #C5CCD7;
+    --kbb-shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 6px 20px rgb(16 24 40 / 0.06);
+    --kbb-shadow-hover: 0 2px 4px rgb(16 24 40 / 0.06), 0 12px 28px rgb(16 24 40 / 0.10);
+    --kbb-radius-card: 20px;
+    --kbb-radius-control: 12px;
+    --kbb-heading: #0E1A2B;
+    --kbb-glass: rgb(255 255 255 / 0.86);
+
+    /* Jasny nagłówek: ten sam token co wcześniej, więc reszta stylów działa bez zmian. */
+    --kbb-color-app-bar: var(--kbb-glass);
+    --kbb-color-on-app-bar: var(--kbb-heading);
+
+    --md-sys-color-surface: var(--kbb-page-bg);
+    --md-sys-color-surface-container-low: var(--kbb-card-bg);
+    --md-sys-color-outline-variant: var(--kbb-hairline);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --kbb-page-bg: #0F1217;
+        --kbb-card-bg: #181C22;
+        --kbb-hairline: #2A3038;
+        --kbb-control-border: #4A515C;
+        --kbb-shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+        --kbb-shadow-hover: 0 6px 20px rgb(0 0 0 / 0.5);
+        --kbb-heading: #EEF1F6;
+        --kbb-glass: rgb(20 24 30 / 0.86);
+    }
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --kbb-hairline: var(--md-sys-color-outline);
+        --kbb-control-border: var(--md-sys-color-on-surface);
+    }
+}
+
+body {
+    background: var(--kbb-page-bg);
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5 {
+    color: var(--kbb-heading);
+}
+
+h1, .h1 {
+    letter-spacing: -0.02em;
+}
+
+/* ---------- Nagłówek: jasny, przyklejony, z rozmyciem tła ---------- */
+
+.app-bar {
+    position: sticky;
+    top: 0;
+    z-index: calc(var(--kbb-z-nav) - 1);
+    border-bottom: 1px solid var(--kbb-hairline);
+    background: var(--kbb-glass);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+}
+
+.app-bar__logo rect {
+    fill: #0B4F8A;
+}
+
+.app-bar__logo path {
+    stroke: #FFFFFF;
+}
+
+.app-bar__logo circle:first-of-type {
+    fill: #FFFFFF;
+}
+
+.app-bar__name-accent {
+    color: #0B4F8A;
+}
+
+@media (prefers-color-scheme: dark) {
+    .app-bar__name-accent {
+        color: var(--md-sys-color-primary);
+    }
+}
+
+.app-bar__tour {
+    border-color: var(--kbb-control-border);
+}
+
+/* ---------- Nawigacja: białe tło z rozmyciem, aktywny punkt jako wypełniona pigułka ---------- */
+
+.app-nav {
+    border-color: var(--kbb-hairline);
+    background: var(--kbb-glass);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+}
+
+.app-nav__link.active .app-nav__icon {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.app-nav__link.active {
+    color: var(--md-sys-color-primary);
+}
+
+/* ---------- Karty ---------- */
+
+.card, .mode-card, .collapsible, .preset-option, .form-section, .preview-sticky, .stat-card, .place-card, .place-item, .places-sidebar {
+    border-color: var(--kbb-hairline);
+    border-radius: var(--kbb-radius-card);
+    background: var(--kbb-card-bg);
+    box-shadow: var(--kbb-shadow-card);
+}
+
+.card {
+    --kbb-surface: var(--kbb-card-bg);
+}
+
+.mode-card {
+    border-color: transparent;
+}
+
+.mode-card:hover, .feature-card:hover {
+    background: var(--kbb-card-bg);
+    box-shadow: var(--kbb-shadow-hover);
+}
+
+.feature-card {
+    border-top: 0;
+    border-color: transparent;
+}
+
+/* Akcent na kartach funkcji: kolorowa ikona zamiast paska. */
+.feature-icon, .mode-icon {
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0B4F8A, #2A7BD0);
+    color: #FFFFFF;
+}
+
+.collapsible > summary {
+    border-radius: var(--kbb-radius-card);
+}
+
+/* Wnioski: biała karta z kolorowym akcentem liczby. */
+.insight {
+    border-left: 0;
+    border-radius: var(--kbb-radius-card);
+    background: var(--kbb-card-bg);
+    color: var(--md-sys-color-on-surface);
+    box-shadow: var(--kbb-shadow-card);
+}
+
+.insight__value {
+    color: var(--md-sys-color-primary);
+}
+
+/* ---------- Przyciski i pola ---------- */
+
+.btn-outline-primary, .btn-outline-secondary, .btn-outline-danger, .btn-light {
+    border-color: var(--kbb-control-border);
+    background-color: var(--kbb-card-bg);
+}
+
+.btn-primary {
+    box-shadow: 0 1px 2px rgb(11 79 138 / 0.25), 0 4px 12px rgb(11 79 138 / 0.18);
+}
+
+.form-control, .form-select {
+    border-color: var(--kbb-control-border);
+    border-radius: var(--kbb-radius-control);
+    background-color: var(--kbb-card-bg);
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
+}
+
+/* Etykieta pola leży na krawędzi pola, więc ma tło takie jak pole. */
+.form-label {
+    background: var(--kbb-card-bg);
+    border-radius: 6px;
+}
+
+/* ---------- Tabele: bez siatki, nagłówek na delikatnym tle ---------- */
+
+.table thead th {
+    background: color-mix(in srgb, var(--md-sys-color-primary) 5%, var(--kbb-card-bg));
+    border-bottom-color: var(--kbb-hairline);
+}
+
+.table th, .table td {
+    border-bottom-color: var(--kbb-hairline);
+}
+
+.table tbody tr:hover > * {
+    background: color-mix(in srgb, var(--md-sys-color-primary) 4%, transparent);
+}
+
+/* ---------- Zakładki „Dla miasta” ---------- */
+
+.city-nav__link {
+    border-color: var(--kbb-control-border);
+    background: var(--kbb-card-bg);
+}
+
+.city-nav__link.active {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+/* ---------- Mapa i stopka ---------- */
+
+.map-frame, .map {
+    border-radius: var(--kbb-radius-card);
+}
+
+.app-footer {
+    border-top-color: var(--kbb-hairline);
+}
+
+/* Karta powitalna ma własne kolory, niezależne od jasnego nagłówka. */
+.hero {
+    background: radial-gradient(120% 140% at 100% 0%, #2A7BD0 0%, #0B4F8A 45%, #0B2F55 100%);
+    box-shadow: 0 20px 40px rgb(11 47 85 / 0.25);
+}
+
+/* Krok nad mapą zgłoszeń: co trzeba zrobić, widoczne od razu. */
+.map-step {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--kbb-space-3);
+    margin: 0 0 var(--kbb-space-3);
+    padding: var(--kbb-space-3) var(--kbb-space-4);
+    border-radius: var(--kbb-radius-control);
+    background: color-mix(in srgb, var(--md-sys-color-primary) 9%, var(--kbb-card-bg));
+    color: var(--md-sys-color-on-surface);
+    font: var(--md-sys-typescale-body-large);
+}
+
+.map-step__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.map-step__hint {
+    display: block;
+    color: var(--md-sys-color-on-surface-variant);
+    font: var(--md-sys-typescale-body-medium);
+}
