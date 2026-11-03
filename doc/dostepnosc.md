@@ -1,6 +1,6 @@
 # Dostępność aplikacji (WCAG 2.2 AA)
 
-Stan na 17.10.2026. Cel: WCAG 2.2 na poziomie AA.
+Stan na 3.11.2026. Cel: WCAG 2.2 na poziomie AA.
 
 ## Jak sprawdzamy
 
@@ -14,9 +14,9 @@ dotnet run --project src/Web --launch-profile http
 cd tools/a11y && npm install && npx playwright install chromium && npm run audit
 ```
 
-Audyt obejmuje 13 widoków na każdym ekranie: start, profil, miejsca, karta miejsca, plan, zgłoś na mapie, konto, panel urzędnika, a także widoki z danymi (ustawiony profil z dwoma potrzebami, lista z ocenami, ułożony plan z trasą na mapie, karta miejsca z oceną, otwarty samouczek). Do tego test klawiatury: fokus na nagłówku po wejściu na stronę, pierwszy Tab na link „Przejdź do treści”, link widoczny po fokusie i prowadzący do treści bieżącej strony.
+Audyt obejmuje 16 widoków na każdym ekranie: start, profil, miejsca, karta miejsca, plan, zgłoś na mapie, konto, panel urzędnika, źródła danych, luki w danych (z sekcją o mieszkańcach), o projekcie, a także widoki z danymi (ustawiony profil z dwoma potrzebami, lista z ocenami, ułożony plan z trasą na mapie, karta miejsca z oceną, otwarty samouczek). Do tego test klawiatury: fokus na nagłówku po wejściu na stronę, pierwszy Tab na link „Przejdź do treści”, link widoczny po fokusie i prowadzący do treści bieżącej strony.
 
-**Wynik: 0 problemów** (26 audytów i 2 testy klawiatury).
+**Wynik: 0 problemów** (32 audyty i 2 testy klawiatury).
 
 ## Co poprawiliśmy po audycie
 
