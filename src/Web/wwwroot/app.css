@@ -34,15 +34,25 @@ body {
     color: inherit;
 }
 
-/* Logo bez zmian, tylko przeskalowane. */
-.header__logo__image {
-    display: block;
-    width: auto;
-    height: 32px;
+.app-bar__brand {
+    gap: var(--kbb-space-2);
+    text-decoration: none;
 }
 
-.header__logo__image .st0 {
-    fill: currentColor;
+.app-bar__logo {
+    display: block;
+    flex: none;
+}
+
+.app-bar__name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.app-bar__name-accent {
+    font-weight: 700;
 }
 
 .app-bar__user {
