@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Kraków bez barier: instrukcja uruchomienia</title>
+<link rel="stylesheet" href="styl.css">
+</head>
+<body>
+
+<h1>Kraków bez barier: instrukcja uruchomienia</h1>
+<p class="meta">Zespół Pioneer Collective · Demo: <strong>https://jakub.byst.re</strong> · Kod: github.com/LucasBoj/krakow-bez-barier · Stan: 3.11.2026</p>
+
+<h2>1. Demo online (bez instalacji)</h2>
+<p>Aplikacja działa pod adresem <strong>https://jakub.byst.re</strong> w każdej nowoczesnej przeglądarce, na komputerze i telefonie. Nie wymaga konta.</p>
+<div class="box">
+<strong>Ścieżka na 5 minut</strong>
+<ol>
+  <li><strong>Strona główna → „Pokaż przykład”.</strong> Aplikacja ustawia profil „Wózek ręczny” i otwiera kartę Urzędu Miasta Krakowa: status, powody oceny, źródło i data każdej cechy, najbliższe koperty ZDMK. Cechy oznaczone „dane demonstracyjne” są danymi zespołu.</li>
+  <li><strong>„Profil potrzeb”</strong>: wybierz inny profil (np. „Spektrum autyzmu” albo „Senior”) i wróć do tej samej karty: ocena i powody się zmieniają.</li>
+  <li><strong>„Miejsca” → „Dodaj do planu”</strong> przy 3–4 miejscach, potem <strong>„Plan”</strong>: kolejność, trasa po ulicach, ostrzeżenia o hałasie na odcinkach, ławki i toalety na przerwy, przejazd tramwajem lub autobusem według rozkładu, „Czytaj na głos”.</li>
+  <li><strong>„Luki w danych i bariery”</strong> (<code>/miasto</code>, link na stronie głównej i w stopce): raport dla urzędu z danymi o dzielnicach, udogodnieniami w zasięgu mieszkańców i seniorów (wykres korelacji), listą 20 miejsc do sprawdzenia i eksportem CSV/GeoJSON.</li>
+  <li><strong>„Panel urzędnika”</strong> (<code>/urzednik</code>): dane logowania konta demonstracyjnego podajemy w treści maila zgłoszeniowego. W panelu widać zgłoszenia mieszkańców, potwierdzanie braków i barier oraz zakładkę „Braki danych”.</li>
+</ol>
+</div>
+<p>Inne strony: „Źródła danych” (<code>/zrodla-danych</code>: każdy zbiór z adresem, licencją i datą), „O projekcie” (<code>/o-projekcie</code>), opis API w OpenAPI (<code>/openapi/v1.json</code>). Przycisk „Samouczek” w nagłówku prowadzi po aplikacji krok po kroku.</p>
+
+<h2>2. Uruchomienie lokalne</h2>
+<p><strong>Wymagania:</strong> .NET SDK 10 (<code>https://dotnet.microsoft.com/download/dotnet/10.0</code>), Git. System: Windows, macOS albo Linux.</p>
+<pre>git clone https://github.com/LucasBoj/krakow-bez-barier.git
+cd krakow-bez-barier
+dotnet run --project src/Web --launch-profile http</pre>
+<p>Aplikacja działa pod adresem <code>http://localhost:5008</code>. Dane miejsc, rozkład i siatki są w repozytorium, więc nic nie trzeba importować.</p>
+<p><strong>Bez żadnych kluczy działa:</strong> przeglądanie i ocena miejsc, profil, plan dnia (trasy w linii prostej), raport <code>/miasto</code>, źródła danych. Zgłoszenia, konta i panel urzędnika wymagają bazy MongoDB; bez niej pokazują komunikat „baza niedostępna”.</p>
+
+<h3>Opcjonalna konfiguracja (sekrety lokalnie)</h3>
+<pre>dotnet user-secrets set "Mongo:ConnectionString" "mongodb+srv://&lt;użytkownik&gt;:&lt;hasło&gt;@&lt;klaster&gt;/" --project src/Web
+dotnet user-secrets set "OpenRouteService:ApiKey" "&lt;klucz&gt;" --project src/Web
+dotnet user-secrets set "OpenAI:ApiKey" "&lt;klucz&gt;" --project src/Web
+dotnet user-secrets set "Officials:Seed:0:Login" "&lt;login urzędnika&gt;" --project src/Web
+dotnet user-secrets set "Officials:Seed:0:Password" "&lt;hasło urzędnika&gt;" --project src/Web</pre>
+<table>
+  <tr><th>Ustawienie</th><th>Co włącza</th><th>Bez niego</th></tr>
+  <tr><td><code>Mongo:ConnectionString</code></td><td>konta, plany na koncie, zgłoszenia, panel urzędnika (wystarczy darmowy klaster MongoDB Atlas M0)</td><td>komunikat „baza niedostępna”</td></tr>
+  <tr><td><code>OpenRouteService:ApiKey</code></td><td>trasy po ulicach dobrane do profilu (darmowy klucz na openrouteservice.org)</td><td>odcinki w linii prostej</td></tr>
+  <tr><td><code>OpenAI:ApiKey</code></td><td>ocena zdjęcia przeszkody w zgłoszeniu</td><td>zdjęcie trafia do zgłoszenia bez oceny</td></tr>
+  <tr><td><code>Officials:Seed:0:*</code></td><td>konto urzędnika zakładane przy starcie</td><td>brak dostępu do panelu urzędnika</td></tr>
+</table>
+
+<h2>3. Uruchomienie w kontenerze (jak na serwerze)</h2>
+<pre>docker build -t krakow-bez-barier .
+docker run -p 8080:8080 \
+  -e Mongo__ConnectionString="mongodb+srv://..." \
+  -e OpenRouteService__ApiKey="..." \
+  krakow-bez-barier</pre>
+<p>Aplikacja działa pod adresem <code>http://localhost:8080</code>. Zmienne środowiskowe mają te same nazwy co ustawienia, z <code>__</code> zamiast <code>:</code>. Wdrożenie produkcyjne (GitHub Actions → VPS) opisuje README, sekcja „Wdrożenie na Mikrusa”.</p>
+
+<h2>4. Testy, audyt dostępności, odświeżenie danych</h2>
+<pre>dotnet test CracowWithoutBarriers.slnx                 # 300 testów jednostkowych
+
+cd tools/a11y &amp;&amp; npm ci &amp;&amp; npx playwright install chromium
+npm run audit                                           # axe-core, WCAG 2.2 A/AA (aplikacja musi działać)
+
+dotnet run --project src/Tools -- city krakow           # odświeżenie danych miasta z MSIP i ZDMK
+dotnet run --project src/Tools -- report krakow         # liczby raportu „Luki w danych” do doc/</pre>
+<p class="note">Import pobiera dane z publicznych usług miasta (ArcGIS REST MSIP), więc wymaga internetu i trwa kilka minut. Każdy zbiór trafia do spisu źródeł z datą pobrania (<code>doc/DATA_SOURCES.md</code>).</p>
+
+</body>
+</html>

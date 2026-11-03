@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Kraków bez barier: dokumentacja techniczna</title>
+<link rel="stylesheet" href="styl.css">
+</head>
+<body>
+
+<h1>Kraków bez barier: dokumentacja techniczna</h1>
+<p class="lead">Aplikacja webowa, która ocenia dostępność miejsc i tras w Krakowie dla konkretnych potrzeb osoby, a miastu pokazuje, gdzie brakuje danych i udogodnień.</p>
+<p class="meta">Zespół Pioneer Collective · Demo: <strong>https://jakub.byst.re</strong> · Kod: github.com/LucasBoj/krakow-bez-barier · Stan dokumentu: 3.11.2026<br>
+Układ dokumentu odpowiada § 5 ust. 2 pkt 5 regulaminu konkursu „Open Data App”: (a) technologie, (b) dane, (c) architektura, (d) możliwości rozwoju.</p>
+
+<div class="kpis">
+  <div class="kpi"><b>31 462</b><span>miejsc w katalogu, 18 kategorii</span></div>
+  <div class="kpi"><b>12</b><span>zbiorów danych, w tym 8 z portali miasta (MSIP)</span></div>
+  <div class="kpi"><b>300</b><span>testów jednostkowych, wszystkie przechodzą</span></div>
+  <div class="kpi"><b>0</b><span>problemów w audycie WCAG 2.2 A/AA (34 sprawdzenia)</span></div>
+</div>
+
+<h2>a) Technologie</h2>
+<table>
+  <tr><th>Warstwa</th><th>Technologia (wersja)</th><th>Zastosowanie</th></tr>
+  <tr><td>Platforma</td><td>.NET 10, C#</td><td>Jeden język i jeden model domeny w przeglądarce, na serwerze i w narzędziach importu.</td></tr>
+  <tr><td>Interfejs</td><td>Blazor WebAssembly 10.0.13, Leaflet 1.9.4, Bootstrap (reset i siatka), własne komponenty na tokenach Material 3</td><td>Aplikacja działa w przeglądarce; ocena dostępności liczy się lokalnie, więc profil potrzeb nie opuszcza urządzenia. Mapa z odpowiednikiem w postaci listy.</td></tr>
+  <tr><td>Serwer (host)</td><td>ASP.NET Core 10 (minimal API), OpenAPI (Microsoft.AspNetCore.OpenApi 10.0.13)</td><td>Pośrednik do routingu (klucz API zostaje na serwerze), konta, zgłoszenia, panel urzędnika, certyfikaty. Opis API: <code>/openapi/v1.json</code>.</td></tr>
+  <tr><td>Logika</td><td>Clean Architecture, CQRS na MediatR 12.4.1</td><td>Domena bez zależności od infrastruktury; zapytania i komendy w warstwie Application.</td></tr>
+  <tr><td>Baza danych</td><td>MongoDB (sterownik 3.12.0), MongoDB Atlas</td><td>Konta, plany, zgłoszenia, bariery na mapie, konta firmowe. Katalog miejsc nie jest w bazie: to pliki statyczne.</td></tr>
+  <tr><td>Usługi zewnętrzne</td><td>OpenRouteService (trasy piesze i wózkowe), OpenAI <code>gpt-4.1-mini</code> (ocena zdjęć w zgłoszeniach)</td><td>Obie opcjonalne: bez kluczy aplikacja działa (trasa w linii prostej, zdjęcie bez oceny AI).</td></tr>
+  <tr><td>Import danych</td><td>Konsola .NET (<code>src/Tools</code>): ArcGIS REST (MSIP, ZDMK), Overpass API (OSM), GTFS</td><td>Powtarzalny import jednym poleceniem; zapisuje katalog, siatki hałasu i mieszkańców oraz spis źródeł.</td></tr>
+  <tr><td>Inne biblioteki</td><td>QRCoder 1.8.0, Blazor.DriverJs 1.2.2</td><td>Kod QR na certyfikacie dla firm; samouczek po aplikacji.</td></tr>
+  <tr><td>Jakość</td><td>xUnit 2.9.3 (300 testów), Playwright + axe-core (audyt WCAG 2.2 A/AA), shellcheck</td><td>Testy i audyt uruchamiane przed każdym wdrożeniem.</td></tr>
+  <tr><td>Wdrożenie</td><td>Docker (obraz <code>mcr.microsoft.com/dotnet/aspnet:10.0</code>), GitHub Actions, VPS Mikrus</td><td>Build, testy, próbne uruchomienie kontenera, wdrożenie przez SSH, test publicznego adresu i bazy, automatyczny powrót do poprzedniej wersji.</td></tr>
+</table>
+
+<h2>b) Wykorzystane dane</h2>
+<p>Każda cecha miejsca ma źródło i datę. Brak danych nigdy nie jest traktowany jako „dostępne”, sprzeczne źródła są pokazywane użytkownikowi, a dane demonstracyjne zespołu są oznaczone w interfejsie. Pełny spis z adresami usług jest w aplikacji (<code>/zrodla-danych</code>) i w <code>doc/DATA_SOURCES.md</code>.</p>
+<table>
+  <tr><th>Zbiór</th><th>Dostawca</th><th>Stan danych</th><th class="num">Rekordy</th><th>Do czego służy</th></tr>
+  <tr><td><strong>Mapa hałasu 2022</strong> (LDWN, drogowy i szynowy)</td><td>GMK, MSIP</td><td>2022</td><td class="num">17 444</td><td>Hałas otoczenia 14 766 miejsc i odcinków trasy dla profili sensorycznych.</td></tr>
+  <tr><td><strong>Toalety publiczne</strong> (rejestr ISDP)</td><td>GMK, MSIP</td><td>2023</td><td class="num">50</td><td>Rodzaj dostosowania, przewijak, godziny; przerwy na trasie.</td></tr>
+  <tr><td><strong>Wiaty przystankowe KMK</strong></td><td>ZTP, MSIP</td><td>10.10.2026</td><td class="num">1 568</td><td>Wiata przy 1 442 przystankach; przy 102 OSM podaje inaczej.</td></tr>
+  <tr><td><strong>Przystanki KMK</strong></td><td>ZTP, MSIP</td><td>10.10.2026</td><td class="num">3 768</td><td>Przystanek na żądanie (ważne dla osób niewidomych).</td></tr>
+  <tr><td><strong>Punkty obsługi mieszkańców UMK</strong></td><td>GMK, MSIP</td><td>brak daty w usłudze</td><td class="num">14</td><td>Urzędy w trybie „Załatwiam sprawę”, link do godzin w BIP.</td></tr>
+  <tr><td><strong>Dzielnice administracyjne</strong></td><td>GMK, MSIP</td><td>01.04.2014</td><td class="num">18</td><td>Przekrój raportu na dzielnice, kartogram.</td></tr>
+  <tr><td><strong>Mieszkańcy dzielnic według wieku</strong> (ewidencja ludności)</td><td>GMK, MSIP</td><td>31.12.2025</td><td class="num">18</td><td>Udział seniorów i osób 80+; korelacja z zasięgiem udogodnień.</td></tr>
+  <tr><td><strong>Stałe zameldowania w heksagonach 100 m</strong></td><td>GMK, MSIP</td><td>30.06.2024</td><td class="num">5 831</td><td>Ilu mieszkańców ma w 300 m przystanek, wiatę, ławkę, toaletę i kopertę.</td></tr>
+  <tr><td>Miejsca postojowe dla osób z niepełnosprawnościami</td><td>ZDMK (ArcGIS Online GMK)</td><td>17.09.2026</td><td class="num">2 037</td><td>Najbliższe koperty przy miejscu, start trasy. Licencja niepodana, więc nie liczymy go do danych z portali miasta.</td></tr>
+  <tr><td>OpenStreetMap (ODbL)</td><td>autorzy OSM</td><td>na bieżąco</td><td class="num">30 412</td><td>Katalog miejsc w 18 kategoriach i tagi dostępności.</td></tr>
+  <tr><td>Rozkład jazdy KMK (GTFS)</td><td>ZTP</td><td>ważny do 31.01.2027</td><td class="num">3 474</td><td>218 linii; przejazd z przesiadką, natężenie ruchu przy miejscach.</td></tr>
+  <tr><td>OpenRouteService</td><td>HeiGIT</td><td>na bieżąco</td><td class="num">–</td><td>Trasy z ograniczeniami z profilu (schody, krawężnik) i omijaniem barier.</td></tr>
+</table>
+
+<h3>Korelacje między źródłami</h3>
+<ul>
+  <li><strong>Hałas × miejsca × trasa:</strong> poligony mapy hałasu połączone przestrzennie z miejscami i z odcinkami planu; profil sensoryczny dostaje ostrzeżenie na głośnym odcinku.</li>
+  <li><strong>Rejestry miasta × OpenStreetMap:</strong> toalety, wiaty, przystanki i koperty dopasowane do obiektów OSM (po położeniu albo nazwie i numerze słupka). Gdy źródła się różnią, aplikacja pokazuje obie wartości i ostrzega, zamiast po cichu wybierać jedną.</li>
+  <li><strong>Ewidencja ludności × udogodnienia:</strong> dla każdego z 5 831 heksagonów liczymy, czy w 300 m jest przystanek, wiata, ławka, toaleta (także dostosowana) i koperta. Wynik: <strong>86,2% zameldowanych (604 816 osób) nie ma w 300 m toalety publicznej dostosowanej</strong>, 18,3% nie ma przystanku z wiatą. W podziale na dzielnice zestawiamy to z udziałem seniorów (współczynnik korelacji Pearsona od 0,36 do 0,69: starsze dzielnice są zwykle bardziej centralne i lepiej wyposażone; najwięcej seniorów bez dostosowanej toalety w zasięgu ma Prądnik Biały, ok. 15 450 osób).</li>
+  <li><strong>Rozkład GTFS × obiekty publiczne:</strong> liczba odjazdów z przystanków w 300 m przybliża natężenie ruchu przy urzędach i placówkach zdrowia bez danych o dostępności; z tego powstaje lista 20 miejsc do sprawdzenia w pierwszej kolejności.</li>
+  <li><strong>Mieszkańcy × urząd (dane w drugą stronę):</strong> zgłoszenie mieszkańca potwierdzone przez urzędnika staje się osobnym źródłem cechy z datą i od razu zmienia ocenę miejsca i trasy. Raport miasta eksportuje się do CSV i GeoJSON.</li>
+</ul>
+
+<h3>Aktualizacja i powtarzalność</h3>
+<pre>dotnet run --project src/Tools -- import krakow    # OSM + dane miasta + ręczne uzupełnienia
+dotnet run --project src/Tools -- city krakow      # same dane miasta (MSIP, ZDMK) dla istniejącego katalogu
+dotnet run --project src/Tools -- transit krakow   # rozkład GTFS
+dotnet run --project src/Tools -- report krakow    # liczby raportu „Luki w danych i bariery” do doc/</pre>
+<p>Ponowne uruchomienie daje ten sam katalog (każdy krok najpierw usuwa własne cechy, potem dodaje je od nowa). Liczby ze strony <code>/miasto</code> są w <code>doc/RAPORT_LUKI_W_DANYCH.md</code> i <code>doc/raport/*.csv</code>.</p>
+
+<h2 class="page-break">c) Architektura rozwiązania</h2>
+<div class="arch">
+  <div class="col">
+    <h4>Przeglądarka (Blazor WebAssembly)</h4>
+    <div class="blk"><b>Web.Client</b>: strony, mapa Leaflet, czytanie na głos</div>
+    <div class="blk"><b>Application</b>: zapytania i komendy (MediatR), planer dnia</div>
+    <div class="blk"><b>Domain</b>: silnik oceny, profil potrzeb, raport miasta, zasięg udogodnień</div>
+    <div class="blk"><b>IndexedDB</b>: profil, plan, cache tras</div>
+  </div>
+  <div class="arrow">⇄</div>
+  <div class="col">
+    <h4>Host (ASP.NET Core, Docker)</h4>
+    <div class="blk"><b>Pliki statyczne</b>: katalog miejsc (po kategoriach), rozkład, siatki hałasu i mieszkańców, spis źródeł</div>
+    <div class="blk"><b>API</b>: <code>/api/route</code>, konta, plany, zgłoszenia, bariery, panel urzędnika, firmy, <code>/openapi/v1.json</code></div>
+    <div class="blk"><b>Infrastructure.Mongo</b>: repozytoria</div>
+    <div class="blk">Limity zapytań per adres IP, ciasteczka HttpOnly</div>
+  </div>
+  <div class="arrow">⇄</div>
+  <div class="col">
+    <h4>Usługi i dane</h4>
+    <div class="blk"><b>MongoDB Atlas</b>: konta, zgłoszenia, plany</div>
+    <div class="blk"><b>OpenRouteService</b>: trasy (klucz tylko na hoście)</div>
+    <div class="blk"><b>OpenAI</b>: ocena zdjęcia przeszkody</div>
+    <div class="blk"><b>Import (Tools)</b>: MSIP, ZDMK, OSM, GTFS → pliki statyczne</div>
+  </div>
+</div>
+
+<h3>Warstwy i projekty</h3>
+<table>
+  <tr><th>Projekt</th><th>Odpowiedzialność</th></tr>
+  <tr><td><code>Domain</code></td><td>Model miejsc i cech (źródło, data, dane demonstracyjne), silnik oceny z regułami dla ruchu, wzroku, słuchu, sensoryki, funkcji poznawczych i kondycji, raport „Luki w danych”, zasięg udogodnień i korelacja, wyszukiwarka połączeń GTFS.</td></tr>
+  <tr><td><code>Application</code></td><td>Zapytania i komendy (CQRS), planer dnia (kolejność: najbliższy sąsiad + 2-opt, przerwy, przejazdy), interfejsy usług.</td></tr>
+  <tr><td><code>Infrastructure</code>, <code>Infrastructure.Mongo</code></td><td>Katalog z plików statycznych, klienci HTTP hosta, routing z cache i wariantem awaryjnym, OpenRouteService, OpenAI, repozytoria MongoDB.</td></tr>
+  <tr><td><code>Web</code>, <code>Web.Client</code></td><td>Host z API i klient WebAssembly (strony, komponenty, moduły JS mapy).</td></tr>
+  <tr><td><code>Tools</code>, <code>Tests</code></td><td>Import i raport z linii poleceń; 300 testów jednostkowych.</td></tr>
+</table>
+
+<h3>Najważniejsze przepływy</h3>
+<ol>
+  <li><strong>Ocena miejsca:</strong> przeglądarka pobiera plik kategorii, silnik zestawia cechy z profilem i zwraca status (dostępne, z ograniczeniami, niedostępne, brak danych) z listą powodów; każdy powód ma źródło i datę. Status końcowy to najgorszy ze statusów cząstkowych.</li>
+  <li><strong>Plan dnia:</strong> kolejność miejsc, trasa po ulicach z <code>/api/route</code> (do usługi trafiają tylko punkty i 3 parametry: wózek, schody, krawężnik), hałas na odcinkach z siatki MSIP, ławki i toalety na przerwy, przejazd komunikacją według rozkładu, objazd barier potwierdzonych przez urząd. Routing ma trzy poziomy awaryjne, więc plan układa się zawsze.</li>
+  <li><strong>Zgłoszenie:</strong> mieszkaniec zgłasza brak lub barierę (opcjonalnie ze zdjęciem bez EXIF, ocenianym przez AI), urzędnik weryfikuje je w panelu, a potwierdzenie zmienia ocenę miejsca i trasy.</li>
+  <li><strong>Raport miasta</strong> (<code>/miasto</code>, bez logowania): liczony w przeglądarce z tych samych plików co polecenie <code>report</code>, więc liczby na stronie i w dokumentach są zgodne.</li>
+</ol>
+
+<h3>Stabilność, bezpieczeństwo, prywatność</h3>
+<ul>
+  <li>Katalog i rozkład to pliki statyczne: awaria zewnętrznej usługi albo bazy nie wyłącza przeglądania i oceny miejsc. Bez bazy API zwraca czytelny komunikat 503.</li>
+  <li>Hasła: PBKDF2-SHA256 z solą; sesje w ciasteczkach HttpOnly, SameSite=Strict; limity zapytań per adres IP (logowanie, rejestracja, zgłoszenia, trasy, analiza zdjęć); prawdziwy adres klienta odczytywany zza proxy.</li>
+  <li>Sekrety (baza, klucze API, konto urzędnika) tylko w zmiennych środowiskowych i sekretach GitHub; nie ma ich w repozytorium (sprawdzone na całej historii).</li>
+  <li>Profil potrzeb (dane o zdrowiu) nie opuszcza urządzenia.</li>
+  <li>Wdrożenie: GitHub Actions buduje obraz, uruchamia testy i shellcheck, startuje kontener próbnie, wdraża przez SSH, sprawdza publiczny adres i bazę, a gdy nowa wersja nie odpowiada, wraca do poprzedniej.</li>
+</ul>
+
+<h3>Skalowalność</h3>
+<ul>
+  <li>Najcięższa część (katalog, ocena, raport) działa w przeglądarce na plikach statycznych, które można podać z CDN; serwer obsługuje tylko lekkie API.</li>
+  <li>Model ma <code>CityId</code>, a import jest sparametryzowany: kolejne miasto to wpis z warstwami ArcGIS i adresem GTFS.</li>
+  <li>Kontener bez stanu (stan w MongoDB), więc host można powielić.</li>
+</ul>
+
+<h3>Dostępność interfejsu</h3>
+<p>Status zawsze jako kolor, znak i tekst; link „Przejdź do treści”; widoczny fokus; etykiety ARIA; mapa z odpowiednikiem w postaci listy; czytanie na głos; tryb ograniczonego ruchu. Automatyczny audyt axe-core (WCAG 2.0–2.2 A/AA): 16 widoków i test klawiatury, na telefonie i komputerze (34 sprawdzenia): 0 problemów (<code>tools/a11y</code>). Przed wdrożeniem produkcyjnym planujemy test z czytnikiem ekranu i z użytkownikami.</p>
+
+<h2>d) Możliwości rozwoju</h2>
+<table>
+  <tr><th>Kierunek</th><th>Co konkretnie</th></tr>
+  <tr><td>Więcej danych miasta</td><td>Budynki publiczne z MSIP, deklaracje dostępności instytucji miejskich, rejestr przejść dla pieszych i sygnalizacji dźwiękowej, tabor niskopodłogowy i komunikacja na żywo (GTFS-RT).</td></tr>
+  <tr><td>Narzędzie dla urzędu</td><td>Cykliczny import i raport (np. co tydzień), historia wskaźników w czasie, przypisywanie zgłoszeń do jednostek (ZDMK, ZTP, wydziały), eksport do systemów GIS miasta.</td></tr>
+  <tr><td>Otwarte dane w drugą stronę</td><td>Publikacja potwierdzonych barier i braków jako nowego zbioru na portalu otwartych danych; klucze API dla partnerów (przewoźnicy, turystyka, uczelnie).</td></tr>
+  <tr><td>Sektor prywatny</td><td>Konta firmowe z certyfikatem QR (hotele, gastronomia, kultura) jako źródło danych i usługa dla branży turystycznej.</td></tr>
+  <tr><td>Kolejne miasta</td><td>Import działa dla każdego miasta z OSM i GTFS; dane miejskie podpina się konfiguracją warstw.</td></tr>
+  <tr><td>Użytkownicy</td><td>Tryb offline, test z czytnikiem ekranu i z organizacjami osób z niepełnosprawnościami, wersja łatwa do czytania (ETR).</td></tr>
+</table>
+
+<p class="note">Szczegóły działania od strony kodu: <code>doc/jak-dziala-aplikacja.md</code>. Instrukcja uruchomienia: osobny dokument „Instrukcja uruchomienia”. Źródła statystyk: NSP 2021, Raport o stanie Gminy Miejskiej Kraków za 2024 r.; dane miejskie: msip.krakow.pl, pobrane 3.11.2026.</p>
+
+</body>
+</html>
