@@ -208,9 +208,15 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 0 var(--kbb-space-4);
-    margin: var(--kbb-space-2) 0 0;
+    margin: 0 0 var(--kbb-space-2);
     padding: 0;
     list-style: none;
+}
+
+.app-footer__note {
+    max-width: 90ch;
+    margin: 0;
+    font: var(--md-sys-typescale-body-medium);
 }
 
 .app-footer__links a {
@@ -363,6 +369,210 @@ body {
 }
 
 /* ---------- Start ---------- */
+
+/* Pierwszy ekran: kolor marki, hasło, dwa działania i liczby z danych miasta. */
+.hero {
+    margin: 0 0 var(--kbb-space-6);
+    padding: var(--kbb-space-8) var(--kbb-space-6);
+    border-radius: var(--md-sys-shape-corner-extra-large, 28px);
+    background: linear-gradient(135deg, var(--kbb-color-app-bar) 0%, #0B4F8A 60%, #1565A8 100%);
+    color: #FFFFFF;
+}
+
+.hero__title {
+    max-width: 22ch;
+    margin-bottom: var(--kbb-space-3);
+    color: inherit;
+    font: 700 2.25rem/1.15 var(--md-ref-typeface-plain);
+    letter-spacing: -0.02em;
+}
+
+.hero__lead {
+    max-width: 60ch;
+    margin-bottom: var(--kbb-space-6);
+    color: #DCE7F5;
+    font: var(--md-sys-typescale-title-large);
+    line-height: 1.5;
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--kbb-space-3);
+}
+
+.hero .btn.hero__btn-primary {
+    border-color: #FFFFFF;
+    background: #FFFFFF;
+    color: #0B3D6B;
+}
+
+.hero .btn.hero__btn-primary:hover, .hero .btn.hero__btn-primary:focus-visible {
+    background: #E3ECF8;
+}
+
+.hero .btn.hero__btn-secondary {
+    border-color: #FFFFFF;
+    background: transparent;
+    color: #FFFFFF;
+}
+
+.hero .btn.hero__btn-secondary:hover, .hero .btn.hero__btn-secondary:focus-visible {
+    background: rgb(255 255 255 / 0.14);
+}
+
+.hero :focus-visible {
+    outline-color: #FFFFFF;
+}
+
+.hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--kbb-space-4);
+    max-width: 60rem;
+    margin: var(--kbb-space-8) 0 0;
+    padding-top: var(--kbb-space-6);
+    border-top: 1px solid rgb(255 255 255 / 0.3);
+}
+
+.hero__fact {
+    display: flex;
+    flex-direction: column-reverse;
+    /* W odwróconej kolumnie początek osi jest na dole, więc liczby wyrównujemy do góry przez flex-end. */
+    justify-content: flex-end;
+    gap: var(--kbb-space-1);
+}
+
+.hero__fact dd {
+    margin: 0;
+    color: #FFD27A;
+    font: 700 2.25rem/1 var(--md-ref-typeface-plain);
+    font-variant-numeric: tabular-nums;
+}
+
+.hero__fact dt {
+    color: #DCE7F5;
+    font: var(--md-sys-typescale-body-medium);
+    font-weight: 400;
+}
+
+@media (max-width: 839px) {
+    .hero {
+        padding: var(--kbb-space-6) var(--kbb-space-4);
+        border-radius: var(--md-sys-shape-corner-large, 16px);
+    }
+
+    .hero__title {
+        font-size: 2rem;
+    }
+
+    .hero__lead {
+        font: var(--md-sys-typescale-body-large);
+    }
+
+    .hero__facts {
+        margin-top: var(--kbb-space-6);
+    }
+
+    .hero__fact dd {
+        font-size: 1.75rem;
+    }
+}
+
+@media (min-width: 840px) {
+    .hero {
+        padding: var(--kbb-space-12) var(--kbb-space-12) var(--kbb-space-8);
+    }
+
+    .hero__title {
+        font-size: 3rem;
+    }
+}
+
+/* Karty z ikoną (strona główna, „O projekcie”): pasek w kolorze marki i lekkie uniesienie po najechaniu. */
+.feature-card {
+    border-top: 4px solid var(--md-sys-color-primary);
+    transition: box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard),
+                transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.feature-card:hover {
+    box-shadow: 0 6px 18px rgb(11 61 107 / 0.14);
+    transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .feature-card, .feature-card:hover {
+        transition: none;
+        transform: none;
+    }
+}
+
+/* Zwijane tabele: długie zestawienia są dostępne, ale nie zasłaniają wniosków. */
+.collapsible {
+    margin-bottom: var(--kbb-space-4);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-shape-corner-medium);
+    background: var(--md-sys-color-surface-container-low);
+}
+
+.collapsible > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--kbb-space-2);
+    min-height: var(--kbb-target);
+    padding: var(--kbb-space-2) var(--kbb-space-4);
+    font: var(--md-sys-typescale-title-medium);
+    color: var(--md-sys-color-primary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.collapsible > summary::-webkit-details-marker {
+    display: none;
+}
+
+.collapsible > summary::before {
+    content: "▸";
+    display: inline-block;
+    transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.collapsible[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.collapsible > .collapsible__body {
+    padding: 0 var(--kbb-space-4) var(--kbb-space-4);
+}
+
+/* Najważniejsze wnioski raportu: duże liczby z jednym zdaniem. */
+.insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--kbb-space-4);
+    margin-bottom: var(--kbb-space-6);
+}
+
+.insight {
+    padding: var(--kbb-space-4) var(--kbb-space-4) var(--kbb-space-4) var(--kbb-space-6);
+    border-left: 6px solid var(--md-sys-color-primary);
+    border-radius: var(--md-sys-shape-corner-medium);
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.insight__value {
+    display: block;
+    font: 700 2.5rem/1.1 var(--md-ref-typeface-plain);
+    font-variant-numeric: tabular-nums;
+}
+
+.insight__text {
+    display: block;
+    margin-top: var(--kbb-space-2);
+    font: var(--md-sys-typescale-body-large);
+}
 
 .mode-card {
     --kbb-surface: var(--md-sys-color-surface-container-low);

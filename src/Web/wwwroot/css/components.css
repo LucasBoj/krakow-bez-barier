@@ -32,6 +32,11 @@ h5, h6, .h6 { font: var(--md-sys-typescale-title-medium); }
     h1, .h1 { font: var(--md-sys-typescale-headline-large); }
 }
 
+/* Hierarchia: tytuły stron i sekcji pogrubione (zmienna grubość Roboto), żeby odróżniały się od treści. */
+h1, .h1 { font-weight: 700; letter-spacing: -0.01em; }
+h2, .h2 { font-weight: 600; }
+h3, .h3, .h4, h4, .h5 { font-weight: 600; }
+
 p {
     margin: 0 0 var(--kbb-space-4);
 }
