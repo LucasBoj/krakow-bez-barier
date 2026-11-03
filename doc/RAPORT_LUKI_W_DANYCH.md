@@ -99,3 +99,37 @@ Siatka zameldowań: stan na 30.06.2024, 701483 osób. Ewidencja dzielnic: stan n
 | XVI Bieńczyce | 36812 | 31,1% | 10,4% | 94,0% | 93,6% | 100,0% | 40,3% | 14,2% | 99,7% |
 | XVII Wzgórza Krzesławickie | 19765 | 25,7% | 5,9% | 90,2% | 76,3% | 80,6% | 0,5% | 0,3% | 51,1% |
 | XVIII Nowa Huta | 45541 | 30,3% | 6,1% | 94,4% | 92,6% | 91,0% | 39,4% | 27,8% | 82,2% |
+
+## Planer inwestycji
+
+Kandydaci to wyłącznie istniejące obiekty: przystanki bez wiaty (brak wiaty w rejestrze ZTP; OSM podaje brak albo nie podaje nic) i toalety publiczne bez potwierdzonego dostosowania dla osób z niepełnosprawnościami. Dla każdego kandydata liczymy stałych mieszkańców heksagonów 100 m, których środek leży do 300 m od obiektu i którzy dziś nie mają tego udogodnienia w zasięgu. Wybieramy po kolei obiekt z największym takim zyskiem; po każdym wyborze jego mieszkańcy nie liczą się już u kolejnych kandydatów (zachłanny wybór maksymalnego pokrycia). Seniorzy to szacunek: zyskujący mieszkańcy × udział seniorów w dzielnicy. Ranking nie uwzględnia kosztu ani możliwości technicznych.
+
+### Wiaty na przystankach: 10 z 639 kandydatów, +14819 mieszkańców (ok. 3591 seniorów); bez udogodnienia przed inwestycją: 128626 z 701483
+
+| # | Obiekt | Dzielnica | Mieszkańcy zyskują | Seniorzy (szacunek) | Narastająco |
+|---|---|---|---|---|---|
+| 1 | Myśliwska 01 | Podgórze | 2479 | 437 | 2479 |
+| 2 | Reja 01 | Prądnik Biały | 1911 | 442 | 4390 |
+| 3 | Wawelska 02 | Mistrzejowice | 1684 | 486 | 6074 |
+| 4 | Czerwieńskiego 02 | Prądnik Biały | 1648 | 381 | 7722 |
+| 5 | Cmentarz Bieżanów 01 | Bieżanów-Prokocim | 1541 | 414 | 9263 |
+| 6 | Rynek Fałęcki 01 | Łagiewniki-Borek Fałęcki | 1295 | 315 | 10558 |
+| 7 | Kępna 01 | Łagiewniki-Borek Fałęcki | 1225 | 298 | 11783 |
+| 8 | Dajwór 01 | Stare Miasto | 1018 | 324 | 12801 |
+| 9 | Architektów Szkoła 01 | Wzgórza Krzesławickie | 1017 | 261 | 13818 |
+| 10 | Polana Żywiecka 01 | Łagiewniki-Borek Fałęcki | 1001 | 233 | 14819 |
+
+### Dostosowanie toalet publicznych: 10 z 110 kandydatów, +33960 mieszkańców (ok. 10179 seniorów); bez udogodnienia przed inwestycją: 604816 z 701483
+
+| # | Obiekt | Dzielnica | Mieszkańcy zyskują | Seniorzy (szacunek) | Narastająco |
+|---|---|---|---|---|---|
+| 1 | Toaleta publiczna (przy przystanku Rondo Kocmyrzowskie im. Ks. Gorzelanego 06) | Bieńczyce | 4473 | 1390 | 4473 |
+| 2 | Toaleta publiczna (przy przystanku Dunikowskiego 05) | Bieńczyce | 4433 | 1378 | 8906 |
+| 3 | Toaleta publiczna (przy przystanku Kurdwanów Południe 02) | Podgórze Duchackie | 4028 | 1061 | 12934 |
+| 4 | Toaleta publiczna (przy przystanku Biprostal 05) | Krowodrza | 3765 | 1217 | 16699 |
+| 5 | Toaleta publiczna (przy przystanku Mistrzejowice 05) | Mistrzejowice | 3710 | 1072 | 20409 |
+| 6 | Toaleta publiczna (przy przystanku Nowosądecka 01) | Podgórze Duchackie | 3392 | 894 | 23801 |
+| 7 | Toaleta publiczna | Krowodrza | 2788 | 901 | 26589 |
+| 8 | Toaleta publiczna (przy przystanku ks. Kurzei 03) | Prądnik Czerwony | 2721 | 786 | 29310 |
+| 9 | Toaleta publiczna (przy przystanku Nowy Kleparz 06) | Stare Miasto | 2384 | 760 | 31694 |
+| 10 | Toaleta publiczna (przy przystanku Stradom 05) | Stare Miasto | 2266 | 720 | 33960 |
