@@ -1,4 +1,4 @@
-@inject AppState State
+﻿@inject AppState State
 
 <div class="profile-grid">
     <!-- Left: Presets & Parameters -->
@@ -118,8 +118,8 @@
         <!-- Actions -->
         <section class="form-section" data-tour="profile-save">
             <div class="form-actions">
-                <button type="button" class="btn btn-primary btn-lg" @onclick="SaveAsync">
-                    @SaveLabel
+                <button type="button" class="btn btn-primary btn-lg" disabled="@(!CanSave)" @onclick="SaveAsync">
+                    @SaveButtonContent
                 </button>
                 <button type="button" class="btn btn-secondary" @onclick="() => { _draft = NeedsProfile.Empty; _saved = false; StateHasChanged(); }">
                     Wyczyść profil
@@ -156,8 +156,8 @@
                     <span class="stat-value">@Labels.Needs(_draft).Count</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary w-100 mt-3" @onclick="SaveAsync">
-                @SaveLabel
+            <button type="button" class="btn btn-primary w-100 mt-3" disabled="@(!CanSave)" @onclick="SaveAsync">
+                @SaveButtonContent
             </button>
         </div>
     </div>
@@ -198,6 +198,16 @@
     /// <summary>Rekord porównuje listę profili po referencji, więc ją porównujemy osobno, po zawartości.</summary>
     private bool IsDirty => _draft with { Presets = NoPresets } != State.Profile with { Presets = NoPresets }
                             || !_draft.Presets.Order().SequenceEqual(State.Profile.Presets.Order());
+
+    /// <summary>
+    /// Na stronie konta przycisk jest aktywny tylko przy niezapisanych zmianach, więc po zapisie widać, że się udało.
+    /// W konfiguracji bez konta przycisk prowadzi też do listy miejsc, więc zostaje aktywny.
+    /// </summary>
+    private bool CanSave => !ShowSaveState || IsDirty;
+
+    private RenderFragment SaveButtonContent => CanSave
+        ? @<text>@SaveLabel</text>
+        : @<text><span class="msym" aria-hidden="true">check</span> Zapisano</text>;
 
     protected override async Task OnInitializedAsync()
     {
