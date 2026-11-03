@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Infrastructure;
@@ -76,6 +77,10 @@ builder.Services.AddRateLimiter(options =>
     options.AddPolicy(AccountEndpoints.RegisterLimit, context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(10) }));
+    // Każdy odcinek planu to jedno zapytanie do OpenRouteService (darmowy limit dzienny); z limitu przeglądarka liczy odcinek w linii prostej.
+    options.AddPolicy(RouteEndpoints.RouteLimit, context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 200, Window = TimeSpan.FromMinutes(10) }));
     // Analiza zdjęć kosztuje (płatne API), więc ma własny limit.
     options.AddPolicy(PhotoEndpoints.AnalyzeLimit, context => RateLimitPartition.GetFixedWindowLimiter(
         context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -93,7 +98,19 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document,
     return Task.CompletedTask;
 }));
 
+// Na serwerze aplikacja stoi za proxy HTTPS dostawcy; bez tego wszyscy mieliby adres proxy i wspólne limity (np. logowania).
+// Proxy nie ma stałego adresu, więc ufamy jednemu, ostatniemu wpisowi X-Forwarded-For.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 1;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
