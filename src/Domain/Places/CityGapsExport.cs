@@ -63,6 +63,19 @@ public static class CityGapsExport
         return csv.ToString();
     }
 
+    /// <summary>Kolejne wybory planera inwestycji z zyskiem mieszkańców i seniorów.</summary>
+    public static string InvestmentCsv(InvestmentPlan plan)
+    {
+        var csv = Header(["pozycja", "id", "nazwa", "adres", "najblizszy_przystanek", "dzielnica", "szer_geogr", "dl_geogr", "mieszkancy_zyskuja",
+            "seniorzy_zyskuja_szacunek", "mieszkancy_narastajaco"]);
+        var rank = 1;
+        foreach (var p in plan.Picks)
+            Row(csv, [(rank++).ToString(Pl), p.Place.Id, p.Place.Name, p.Place.Address ?? "", p.NearStop ?? "", p.District ?? "",
+                p.Place.Lat.ToString("0.000000", Pl), p.Place.Lon.ToString("0.000000", Pl), p.Residents.ToString(Pl), p.Seniors.ToString(Pl),
+                p.CumulativeResidents.ToString(Pl)]);
+        return csv.ToString();
+    }
+
     private static IEnumerable<string> Reach(IReadOnlyList<AmenityReach> amenities) =>
         amenities.SelectMany(a => new[] { (a.Share * 100).ToString("0.0", Pl), a.Without.ToString(Pl) });
 
