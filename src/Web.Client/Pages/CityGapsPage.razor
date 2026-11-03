@@ -34,18 +34,122 @@ else
         </div>
     </section>
 
+    @if (r.Residents is { } residents)
+    {
+        <section aria-labelledby="gaps-residents" class="mb-4">
+            <h2 id="gaps-residents" class="h4">Udogodnienia w zasięgu mieszkańców</h2>
+            <p>Ilu mieszkańców ma w promieniu @residents.RadiusM.ToString("0") m przystanek, wiatę, ławkę, toaletę i kopertę. Najpoważniejsza luka:
+                <strong>@Pct(1 - residents.Of(Amenity.AccessibleToilet).Share) mieszkańców</strong> (@residents.Of(Amenity.AccessibleToilet).Without.ToString("N0", Pl) osób)
+                nie ma w tym promieniu toalety publicznej dostosowanej dla osób z niepełnosprawnościami.</p>
+            <div class="row g-3 mb-3">
+                @foreach (var a in residents.Total)
+                {
+                    var c = residents.Correlations.First(x => x.Amenity == a.Amenity);
+                    @Tile(Capitalize(ResidentsReach.Label(a.Amenity)), Pct(a.Share), $"bez w {residents.RadiusM:0} m: {a.Without.ToString("N0", Pl)} mieszkańców, w tym ok. {c.SeniorsWithoutEstimate.ToString("N0", Pl)} seniorów")
+                }
+            </div>
+
+            <div class="row g-2 align-items-end mb-2">
+                <div class="col-sm-8 col-lg-5">
+                    <label for="gaps-amenity" class="form-label">Udogodnienie w tabeli i na wykresie</label>
+                    <select id="gaps-amenity" class="form-select" @bind="_amenity">
+                        @foreach (var a in ResidentsReach.All)
+                        {
+                            <option value="@a">@Capitalize(ResidentsReach.Label(a))</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            @{
+                var withAge = residents.Districts.Where(d => d.Registry is not null && d.Residents > 0).ToList();
+                var worst = withAge.MaxBy(d => d.Of(_amenity).Without * d.Registry!.SeniorShare);
+                var corr = residents.Correlations.First(x => x.Amenity == _amenity);
+            }
+            @if (worst is not null)
+            {
+                <p>Najwięcej seniorów bez udogodnienia „@ResidentsReach.Label(_amenity)” w zasięgu: <strong>@worst.Roman @worst.Name</strong>,
+                    ok. @(((int)Math.Round(worst.Of(_amenity).Without * worst.Registry!.SeniorShare)).ToString("N0", Pl)) osób
+                    (seniorzy to @Pct(worst.Registry.SeniorShare) mieszkańców dzielnicy, udogodnienie ma w zasięgu @Pct(worst.Of(_amenity).Share)).</p>
+            }
+
+            <figure class="mb-3">
+                @Scatter(withAge, _amenity, corr.R)
+                <figcaption class="small">
+                    Każdy punkt to dzielnica: w poziomie udział seniorów, w pionie odsetek mieszkańców z udogodnieniem w zasięgu.
+                    @(corr.R is { } rv ? $"Współczynnik korelacji r = {rv.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',')}: {Describe(rv)}" : "Za mało danych, by policzyć korelację.")
+                    Korelacja nie mówi o przyczynie: dzielnice starsze są zwykle też bardziej centralne.
+                </figcaption>
+            </figure>
+
+            <div class="table-responsive" tabindex="0" role="region" aria-labelledby="gaps-residents-caption">
+                <table class="table table-sm align-middle">
+                    <caption id="gaps-residents-caption" class="caption-top">Mieszkańcy dzielnic i udogodnienie „@ResidentsReach.Label(_amenity)” w promieniu @residents.RadiusM.ToString("0") m</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Dzielnica</th>
+                            <th scope="col" class="text-end">Mieszkańcy</th>
+                            <th scope="col" class="text-end">Seniorzy</th>
+                            <th scope="col" class="text-end">80+</th>
+                            <th scope="col" class="text-end">Z udogodnieniem</th>
+                            <th scope="col" class="text-end">Bez udogodnienia</th>
+                            <th scope="col" class="text-end">Seniorzy bez (szacunek)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in residents.Districts)
+                        {
+                            var a = d.Of(_amenity);
+                            <tr>
+                                <th scope="row" class="fw-normal">@d.Roman @d.Name</th>
+                                <td class="text-end">@d.Residents.ToString("N0", Pl)</td>
+                                <td class="text-end">@(d.Registry is { } g ? Pct(g.SeniorShare) : "–")</td>
+                                <td class="text-end">@(d.Registry is { } h ? Pct(h.Age80Share) : "–")</td>
+                                <td class="text-end">@Pct(a.Share)</td>
+                                <td class="text-end">@a.Without.ToString("N0", Pl)</td>
+                                <td class="text-end">@(d.Registry is { } s ? ((int)Math.Round(a.Without * s.SeniorShare)).ToString("N0", Pl) : "–")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-body-secondary">
+                @ResidentsReach.Rule Siatka zameldowań: stan na @residents.GridDate.ToString("dd.MM.yyyy"); wiek mieszkańców dzielnic: stan na @residents.DistrictsDate.ToString("dd.MM.yyyy").
+                Szacunek seniorów bez udogodnienia zakłada, że seniorzy mieszkają w dzielnicy tak samo jak pozostali mieszkańcy.
+            </p>
+        </section>
+    }
+
     <section aria-labelledby="gaps-map" class="mb-4">
-        <h2 id="gaps-map" class="h4">Mapa: dane o wejściu dla wózków w dzielnicach</h2>
+        <h2 id="gaps-map" class="h4">Mapa dzielnic</h2>
+        <div class="row g-2 mb-2">
+            <div class="col-sm-8 col-lg-5">
+                <label for="gaps-map-metric" class="form-label">Kolor dzielnicy pokazuje</label>
+                <select id="gaps-map-metric" class="form-select" value="@_mapMetric" @onchange="ChangeMapMetric">
+                    <option value="">Dane o wejściu dla wózków (odsetek miejsc)</option>
+                    @if (r.Residents is not null)
+                    {
+                        @foreach (var a in ResidentsReach.All)
+                        {
+                            <option value="@a">Mieszkańcy z udogodnieniem: @ResidentsReach.Label(a)</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
         <p class="small mb-2">
-            Kolor dzielnicy to odsetek miejsc z informacją o wejściu dla wózków (im jaśniej, tym mniej wiemy). Czerwone pinezki z numerem to miejsca z listy priorytetowej,
-            znaki ostrzegawcze to bariery potwierdzone przez urząd. Pinezki są poglądowe: miejsca otworzysz z listy niżej, a liczby są w tabelach.
+            @(_mapMetric == "" ? "Kolor dzielnicy to odsetek miejsc z informacją o wejściu dla wózków (im jaśniej, tym mniej wiemy)." : "Kolor dzielnicy to odsetek mieszkańców, którzy mają udogodnienie w promieniu 300 m (im jaśniej, tym gorzej).")
+            Czerwone pinezki z numerem to miejsca z listy priorytetowej, znaki ostrzegawcze to bariery potwierdzone przez urząd.
+            Pinezki są poglądowe: miejsca otworzysz z listy niżej, a liczby są w tabelach.
         </p>
         <MapView Label="Kartogram pokrycia danymi o dostępności w dzielnicach Krakowa" Areas="_areas" Markers="_markers" FitToAreas="true" Zoom="11"
                  MarkersInteractive="false" />
         <ul class="gaps-legend small mt-2" aria-label="Legenda kolorów dzielnic">
-            @foreach (var (from, color) in Scale)
+            @{ var scale = CurrentScale; }
+            @for (var i = 0; i < scale.Length; i++)
             {
-                <li><span class="gaps-legend-swatch" style="background:@color" aria-hidden="true"></span>@(from == 0 ? "poniżej 10%" : from >= 40 ? "40% i więcej" : $"{from}–{from + 10}%")</li>
+                var (from, color) = scale[i];
+                <li><span class="gaps-legend-swatch" style="background:@color" aria-hidden="true"></span>@(i == 0 ? $"poniżej {scale[1].From}%" : i == scale.Length - 1 ? $"{from}% i więcej" : $"{from}–{scale[i + 1].From}%")</li>
             }
         </ul>
     </section>
@@ -85,7 +189,7 @@ else
                 <li class="mb-1">
                     <a href="@($"miejsca/{p.Place.Id}")">@p.Place.Name</a>
                     <span class="text-body-secondary">· @Labels.Of(p.Place.Category)@(p.District is { } d ? $" · {d}" : "")@(p.Place.Address is { } a ? $" · {a}" : "")
-                        · @p.DeparturesNearby.ToString("N0", Pl) odjazdów w 300 m · wynik @p.Score.ToString("N0", Pl)</span>
+                        · @p.DeparturesNearby.ToString("N0", Pl) odjazdów w 300 m · wynik @p.Score.ToString("N0", Pl)@(p.ResidentsNearby is { } near ? $" · {near.ToString("N0", Pl)} mieszkańców w 300 m" : "")</span>
                 </li>
             }
         </ol>
@@ -120,6 +224,10 @@ else
             <button type="button" class="btn btn-outline-primary" @onclick='() => SaveAsync("luki-dzielnice.csv", "text/csv", CityGapsExport.DistrictsCsv(r))'>Dzielnice (CSV)</button>
             <button type="button" class="btn btn-outline-primary" @onclick='() => SaveAsync("luki-kategorie.csv", "text/csv", CityGapsExport.GroupsCsv(r))'>Kategorie (CSV)</button>
             <button type="button" class="btn btn-outline-primary" @onclick='() => SaveAsync("luki-priorytety.csv", "text/csv", CityGapsExport.PrioritiesCsv(r))'>Priorytety (CSV)</button>
+            @if (r.Residents is not null)
+            {
+                <button type="button" class="btn btn-outline-primary" @onclick='() => SaveAsync("luki-mieszkancy.csv", "text/csv", CityGapsExport.ResidentsCsv(r))'>Mieszkańcy i udogodnienia (CSV)</button>
+            }
             <button type="button" class="btn btn-outline-primary" @onclick='() => SaveAsync("luki-raport.geojson", "application/geo+json", CityGapsExport.GeoJson(r, _view.Districts, _view.Hazards))'>Cały raport (GeoJSON)</button>
         </div>
         <p class="small text-body-secondary mt-2">Te same liczby (bez barier z bazy) odtworzysz poleceniem <code>dotnet run --project src/Tools -- report krakow</code>.</p>
@@ -134,9 +242,19 @@ else
     private static readonly (int From, string Color)[] Scale =
         [(0, "#EFF3FF"), (10, "#BDD7E7"), (20, "#6BAED6"), (30, "#3182BD"), (40, "#08519C")];
 
+    /// <summary>Skala dla zasięgu udogodnień: większość dzielnic ma powyżej 50%, więc przedziały są węższe u góry.</summary>
+    private static readonly (int From, string Color)[] ReachScale =
+        [(0, "#EFF3FF"), (50, "#BDD7E7"), (70, "#6BAED6"), (85, "#3182BD"), (95, "#08519C")];
+
     private CityGapsView? _view;
     private IReadOnlyList<MapArea> _areas = [];
     private IReadOnlyList<MapMarker> _markers = [];
+    private Amenity _amenity = Amenity.AccessibleToilet;
+
+    /// <summary>Pusty napis: dane o wejściu dla wózków; inaczej nazwa udogodnienia.</summary>
+    private string _mapMetric = "";
+
+    private (int From, string Color)[] CurrentScale => _mapMetric == "" ? Scale : ReachScale;
 
     protected override async Task OnInitializedAsync()
     {
@@ -146,22 +264,85 @@ else
             return;
 
         _view = result.Value;
-        var byNumber = _view.Report.Districts.ToDictionary(d => d.Number);
-        _areas = (_view.Districts?.Districts ?? [])
-            .Where(d => byNumber.ContainsKey(d.Number))
-            .Select(d =>
-            {
-                var share = byNumber[d.Number].Stats.Share(byNumber[d.Number].Stats.WithWheelchair);
-                return new MapArea(d.Name, d.Rings, ColorFor(share), $"{d.Roman} {Pct(share)}");
-            })
-            .ToList();
+        _areas = Areas();
         _markers = _view.Report.Priorities
             .Select((p, i) => new MapMarker(p.Place.Id, p.Place.Name, p.Place.Lat, p.Place.Lon, "#BA1A1A", (i + 1).ToString()))
             .Concat(_view.Hazards.Select(h => Labels.Marker(h) with { Id = "" }))
             .ToList();
     }
 
-    private static string ColorFor(double share) => Scale.Last(s => share * 100 >= s.From).Color;
+    private IReadOnlyList<MapArea> Areas()
+    {
+        if (_view is null)
+            return [];
+        var byNumber = _view.Report.Districts.ToDictionary(d => d.Number);
+        var reach = _view.Report.Residents?.Districts.ToDictionary(d => d.Number);
+        var amenity = Enum.TryParse<Amenity>(_mapMetric, out var a) ? a : (Amenity?)null;
+        var scale = CurrentScale;
+        return (_view.Districts?.Districts ?? [])
+            .Where(d => byNumber.ContainsKey(d.Number) && (amenity is null || reach?.ContainsKey(d.Number) == true))
+            .Select(d =>
+            {
+                var share = amenity is { } chosen ? reach![d.Number].Of(chosen).Share : byNumber[d.Number].Stats.Share(byNumber[d.Number].Stats.WithWheelchair);
+                return new MapArea(d.Name, d.Rings, scale.Last(s => share * 100 >= s.From).Color, $"{d.Roman} {Pct(share)}");
+            })
+            .ToList();
+    }
+
+    private void ChangeMapMetric(ChangeEventArgs e)
+    {
+        _mapMetric = e.Value?.ToString() ?? "";
+        _areas = Areas();
+    }
+
+    private static string Capitalize(string text) => text.Length == 0 ? text : char.ToUpperInvariant(text[0]) + text[1..];
+
+    private static string Describe(double r) => r switch
+    {
+        >= 0.3 => "w dzielnicach z większym udziałem seniorów mieszkańcy częściej mają to udogodnienie w zasięgu.",
+        <= -0.3 => "w dzielnicach z większym udziałem seniorów mieszkańcy rzadziej mają to udogodnienie w zasięgu.",
+        _ => "nie widać wyraźnej zależności od udziału seniorów."
+    };
+
+    /// <summary>
+    /// Wykres punktowy w SVG; te same liczby są w tabeli pod nim, więc czytnik ekranu dostaje tylko podsumowanie.
+    /// Składany jako tekst, bo Razor traktuje element &lt;text&gt; jako własny znacznik.
+    /// </summary>
+    private static MarkupString Scatter(IReadOnlyList<DistrictReach> districts, Amenity amenity, double? r)
+    {
+        const double width = 640, height = 300, left = 52, right = 16, top = 12, bottom = 40;
+        var xs = districts.Select(d => d.Registry!.SeniorShare * 100).ToList();
+        var minX = xs.Count == 0 ? 0 : Math.Floor(xs.Min() / 5) * 5;
+        var maxX = xs.Count == 0 ? 100 : Math.Ceiling(xs.Max() / 5) * 5;
+        if (maxX <= minX)
+            maxX = minX + 5;
+        // Oś pionowa do najbliższej wielokrotności 25% powyżej maksimum, żeby niskie wartości (toalety) nie zlewały się przy zerze.
+        var maxY = Math.Min(100, Math.Max(25, Math.Ceiling(districts.Select(d => d.Of(amenity).Share * 100).DefaultIfEmpty(0).Max() / 25) * 25));
+        double X(double v) => left + (v - minX) / (maxX - minX) * (width - left - right);
+        double Y(double v) => top + (maxY - v) / maxY * (height - top - bottom);
+        static string N(double v) => v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+        static string E(string v) => System.Net.WebUtility.HtmlEncode(v);
+
+        var label = $"Wykres punktowy dla {districts.Count} dzielnic: udział seniorów a odsetek mieszkańców z udogodnieniem „{ResidentsReach.Label(amenity)}” w zasięgu" +
+                    (r is { } rv ? $", r = {rv.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',')}." : ".");
+        var svg = new System.Text.StringBuilder();
+        svg.Append($"<svg class=\"gaps-scatter\" viewBox=\"0 0 {N(width)} {N(height)}\" role=\"img\" aria-label=\"{E(label)}\">");
+        for (var y = 0; y <= maxY; y += maxY <= 50 ? 5 : 25)
+            svg.Append($"<line x1=\"{N(left)}\" x2=\"{N(width - right)}\" y1=\"{N(Y(y))}\" y2=\"{N(Y(y))}\" class=\"gaps-scatter-grid\"/>")
+               .Append($"<text x=\"{N(left - 6)}\" y=\"{N(Y(y) + 4)}\" text-anchor=\"end\" class=\"gaps-scatter-tick\">{y}%</text>");
+        for (var x = minX; x <= maxX; x += 5)
+            svg.Append($"<text x=\"{N(X(x))}\" y=\"{N(height - bottom + 16)}\" text-anchor=\"middle\" class=\"gaps-scatter-tick\">{N(x)}%</text>");
+        svg.Append($"<text x=\"{N((left + width - right) / 2)}\" y=\"{N(height - 4)}\" text-anchor=\"middle\" class=\"gaps-scatter-axis\">udział seniorów w dzielnicy</text>");
+        foreach (var d in districts)
+        {
+            var cx = X(d.Registry!.SeniorShare * 100);
+            var cy = Y(d.Of(amenity).Share * 100);
+            svg.Append($"<circle cx=\"{N(cx)}\" cy=\"{N(cy)}\" r=\"5\" class=\"gaps-scatter-dot\"/>")
+               .Append($"<text x=\"{N(cx + 7)}\" y=\"{N(cy + 4)}\" class=\"gaps-scatter-label\">{E(d.Roman)}</text>");
+        }
+        svg.Append("</svg>");
+        return new MarkupString(svg.ToString());
+    }
 
     private static string Pct(double share) => (share * 100).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + "%";
 

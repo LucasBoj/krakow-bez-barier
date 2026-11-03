@@ -35,6 +35,12 @@ public interface IDistrictsCatalog
     Task<DistrictMap?> GetAsync(string cityId, CancellationToken ct);
 }
 
+public interface IResidentsCatalog
+{
+    /// <summary>Siatka mieszkańców z zasięgiem udogodnień albo null, gdy miasto jej nie udostępnia.</summary>
+    Task<ResidentsGrid?> GetAsync(string cityId, CancellationToken ct);
+}
+
 public interface INoiseCatalog
 {
     /// <summary>Siatka hałasu miasta albo null, gdy miasto nie udostępnia mapy hałasu.</summary>

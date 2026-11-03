@@ -20,7 +20,9 @@ public static class CityGapsReportWriter
         districts = File.Exists(districtsPath) ? JsonSerializer.Deserialize<DistrictMap>(File.ReadAllText(districtsPath), DomainJson.Options) : null;
         var transitPath = Path.Combine(dataDir, "transit.json");
         var transit = File.Exists(transitPath) ? JsonSerializer.Deserialize<TransitNetwork>(File.ReadAllText(transitPath), DomainJson.Options) : null;
-        return CityGaps.Build(places, districts, transit, []);
+        var residentsPath = Path.Combine(dataDir, "residents.json");
+        var residents = File.Exists(residentsPath) ? JsonSerializer.Deserialize<ResidentsGrid>(File.ReadAllText(residentsPath), DomainJson.Options) : null;
+        return CityGaps.Build(places, districts, transit, [], residents);
     }
 
     public static string Markdown(CityGapsReport r)
@@ -53,11 +55,41 @@ public static class CityGapsReportWriter
         md.AppendLine();
         md.AppendLine(CityGaps.RankingRule);
         md.AppendLine();
-        md.AppendLine("| # | Miejsce | Kategoria | Dzielnica | Odjazdy w 300 m | Wynik |");
-        md.AppendLine("|---|---|---|---|---|---|");
+        md.AppendLine("| # | Miejsce | Kategoria | Dzielnica | Odjazdy w 300 m | Wynik | Mieszkańcy w 300 m |");
+        md.AppendLine("|---|---|---|---|---|---|---|");
         var rank = 1;
         foreach (var p in r.Priorities)
-            md.AppendLine($"| {rank++} | {p.Place.Name}{(p.Place.Address is { } a ? $", {a}" : "")} | {p.Place.Category} | {p.District ?? "–"} | {p.DeparturesNearby} | {p.Score:0} |");
+            md.AppendLine($"| {rank++} | {p.Place.Name}{(p.Place.Address is { } a ? $", {a}" : "")} | {p.Place.Category} | {p.District ?? "–"} | {p.DeparturesNearby} | {p.Score:0} | {p.ResidentsNearby?.ToString() ?? "–"} |");
+        if (r.Residents is { } residents)
+            AppendResidents(md, residents);
         return md.ToString();
+    }
+
+    private static void AppendResidents(StringBuilder md, ResidentsReport r)
+    {
+        static string P(double share) => (share * 100).ToString("0.0", CultureInfo.InvariantCulture).Replace('.', ',') + "%";
+
+        md.AppendLine();
+        md.AppendLine($"## Udogodnienia w zasięgu mieszkańców ({r.RadiusM:0} m)");
+        md.AppendLine();
+        md.AppendLine(ResidentsReach.Rule);
+        md.AppendLine();
+        md.AppendLine($"Siatka zameldowań: stan na {r.GridDate:dd.MM.yyyy}, {r.Residents} osób. Ewidencja dzielnic: stan na {r.DistrictsDate:dd.MM.yyyy}, " +
+                      $"{r.RegistryTotal} osób, w tym {r.RegistrySeniors} seniorów ({P((double)r.RegistrySeniors / r.RegistryTotal)}) i {r.Registry80Plus} osób 80+.");
+        md.AppendLine();
+        md.AppendLine("| Udogodnienie | Mieszkańcy w zasięgu | Bez udogodnienia | Szacunek: seniorzy bez udogodnienia | Korelacja z udziałem seniorów (r) |");
+        md.AppendLine("|---|---|---|---|---|");
+        foreach (var a in r.Total)
+        {
+            var c = r.Correlations.First(x => x.Amenity == a.Amenity);
+            md.AppendLine($"| {ResidentsReach.Label(a.Amenity)} | {a.WithAccess} ({P(a.Share)}) | {a.Without} | {c.SeniorsWithoutEstimate} | " +
+                          $"{(c.R is { } value ? value.ToString("0.00", CultureInfo.InvariantCulture).Replace('.', ',') : "–")} |");
+        }
+        md.AppendLine();
+        md.AppendLine("| Dzielnica | Mieszkańcy (siatka) | Seniorzy | 80+ | " + string.Join(" | ", ResidentsReach.All.Select(ResidentsReach.Label)) + " |");
+        md.AppendLine("|---|---|---|---|" + string.Concat(ResidentsReach.All.Select(_ => "---|")));
+        foreach (var d in r.Districts)
+            md.AppendLine($"| {d.Roman} {d.Name} | {d.Residents} | {(d.Registry is { } g ? P(g.SeniorShare) : "–")} | {(d.Registry is { } h ? P(h.Age80Share) : "–")} | " +
+                          string.Join(" | ", d.Amenities.Select(a => P(a.Share))) + " |");
     }
 }

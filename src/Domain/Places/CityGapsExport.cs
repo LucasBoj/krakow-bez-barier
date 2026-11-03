@@ -38,14 +38,35 @@ public static class CityGapsExport
 
     public static string PrioritiesCsv(CityGapsReport report)
     {
-        var csv = Header(["pozycja", "id", "nazwa", "kategoria", "adres", "dzielnica", "szer_geogr", "dl_geogr", "odjazdy_w_300_m", "waga", "wynik"]);
+        var csv = Header(["pozycja", "id", "nazwa", "kategoria", "adres", "dzielnica", "szer_geogr", "dl_geogr", "odjazdy_w_300_m", "waga", "wynik",
+            "mieszkancy_w_300_m"]);
         var rank = 1;
         foreach (var p in report.Priorities)
             Row(csv, [(rank++).ToString(Pl), p.Place.Id, p.Place.Name, p.Place.Category.ToString(), p.Place.Address ?? "", p.District ?? "",
                 p.Place.Lat.ToString("0.000000", Pl), p.Place.Lon.ToString("0.000000", Pl), p.DeparturesNearby.ToString(Pl),
-                p.Weight.ToString("0.#", Pl), p.Score.ToString("0.#", Pl)]);
+                p.Weight.ToString("0.#", Pl), p.Score.ToString("0.#", Pl), p.ResidentsNearby?.ToString(Pl) ?? ""]);
         return csv.ToString();
     }
+
+    /// <summary>Mieszkańcy dzielnic i udogodnienia w zasięgu; pusty napis bez siatki mieszkańców.</summary>
+    public static string ResidentsCsv(CityGapsReport report)
+    {
+        if (report.Residents is not { } r)
+            return "";
+        var csv = Header(["nr", "dzielnica", "mieszkancy_siatka", "mieszkancy_ewidencja", "proc_seniorow", "proc_80_plus",
+            .. ResidentsReach.All.SelectMany(a => new[] { $"proc_z_{ResidentsReach.Slug(a)}", $"bez_{ResidentsReach.Slug(a)}" })]);
+        Row(csv, ["", "Razem", r.Residents.ToString(Pl), r.RegistryTotal.ToString(Pl), Share(r.RegistrySeniors, r.RegistryTotal),
+            Share(r.Registry80Plus, r.RegistryTotal), .. Reach(r.Total)]);
+        foreach (var d in r.Districts)
+            Row(csv, [d.Roman, d.Name, d.Residents.ToString(Pl), d.Registry?.Total.ToString(Pl) ?? "", d.Registry is { } g ? Share(g.PostWorkingAge, g.Total) : "",
+                d.Registry is { } h ? Share(h.Age80Plus, h.Total) : "", .. Reach(d.Amenities)]);
+        return csv.ToString();
+    }
+
+    private static IEnumerable<string> Reach(IReadOnlyList<AmenityReach> amenities) =>
+        amenities.SelectMany(a => new[] { (a.Share * 100).ToString("0.0", Pl), a.Without.ToString(Pl) });
+
+    private static string Share(int count, int total) => (total == 0 ? 0 : count * 100.0 / total).ToString("0.0", Pl);
 
     public static string GeoJson(CityGapsReport report, DistrictMap? districts, IReadOnlyList<VerifiedHazard> hazards)
     {
@@ -55,10 +76,22 @@ public static class CityGapsExport
             var district = districts?.Districts.FirstOrDefault(x => x.Number == d.Number);
             if (district is null)
                 continue;
-            features.Add(Feature(Polygon(district), StatsProperties(d.Stats, new JsonObject
+            var properties = StatsProperties(d.Stats, new JsonObject
             {
                 ["rodzaj"] = "dzielnica", ["nr"] = d.Roman, ["nazwa"] = d.Name, ["potwierdzone_bariery"] = d.Hazards
-            })));
+            });
+            if (report.Residents?.Districts.FirstOrDefault(x => x.Number == d.Number) is { } reach)
+            {
+                properties["mieszkancy_siatka"] = reach.Residents;
+                if (reach.Registry is { } registry)
+                {
+                    properties["proc_seniorow"] = Math.Round(registry.SeniorShare * 100, 1);
+                    properties["proc_80_plus"] = Math.Round(registry.Age80Share * 100, 1);
+                }
+                foreach (var a in reach.Amenities)
+                    properties[$"proc_z_{ResidentsReach.Slug(a.Amenity)}"] = Math.Round(a.Share * 100, 1);
+            }
+            features.Add(Feature(Polygon(district), properties));
         }
 
         var rank = 1;
@@ -67,7 +100,7 @@ public static class CityGapsExport
             {
                 ["rodzaj"] = "priorytet", ["pozycja"] = rank++, ["id"] = p.Place.Id, ["nazwa"] = p.Place.Name,
                 ["kategoria"] = p.Place.Category.ToString(), ["adres"] = p.Place.Address, ["dzielnica"] = p.District,
-                ["odjazdy_w_300_m"] = p.DeparturesNearby, ["waga"] = p.Weight, ["wynik"] = p.Score
+                ["odjazdy_w_300_m"] = p.DeparturesNearby, ["waga"] = p.Weight, ["wynik"] = p.Score, ["mieszkancy_w_300_m"] = p.ResidentsNearby
             }));
 
         foreach (var h in hazards)
@@ -83,7 +116,8 @@ public static class CityGapsExport
             ["metadata"] = new JsonObject
             {
                 ["raport"] = "Luki w danych i bariery", ["regula_rankingu"] = CityGaps.RankingRule,
-                ["dzien_rozkladu"] = report.TrafficDay?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                ["dzien_rozkladu"] = report.TrafficDay?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                ["regula_mieszkancow"] = report.Residents is null ? null : ResidentsReach.Rule
             },
             ["features"] = features
         };
