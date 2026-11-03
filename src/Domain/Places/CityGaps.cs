@@ -30,12 +30,14 @@ public sealed record GroupCoverage(string Group, CoverageStats Stats);
 
 /// <param name="DeparturesNearby">Odjazdy komunikacji miejskiej w dniu odniesienia z przystanków w promieniu <see cref="CityGaps.TrafficRadiusM"/>.</param>
 /// <param name="Weight">Waga kategorii w rankingu.</param>
-public sealed record PriorityPlace(Place Place, string? District, int DeparturesNearby, double Weight, double Score);
+/// <param name="ResidentsNearby">Stałe zameldowania w promieniu <see cref="ResidentsReach.RadiusM"/>; null bez siatki mieszkańców. Nie wpływa na wynik.</param>
+public sealed record PriorityPlace(Place Place, string? District, int DeparturesNearby, double Weight, double Score, int? ResidentsNearby = null);
 
 /// <param name="TrafficDay">Dzień powszedni z rozkładu, dla którego liczymy odjazdy; null bez rozkładu.</param>
+/// <param name="Residents">Udogodnienia w zasięgu mieszkańców; null, gdy miasto nie udostępnia siatki mieszkańców.</param>
 public sealed record CityGapsReport(
     CoverageStats Total, IReadOnlyList<DistrictCoverage> Districts, int OutsideDistricts, IReadOnlyList<GroupCoverage> Groups,
-    IReadOnlyList<PriorityPlace> Priorities, int PriorityCandidates, DateOnly? TrafficDay, int Hazards);
+    IReadOnlyList<PriorityPlace> Priorities, int PriorityCandidates, DateOnly? TrafficDay, int Hazards, ResidentsReport? Residents = null);
 
 /// <summary>
 /// Raport "Luki w danych i bariery": gdzie miasto powinno najpierw zebrać dane albo poprawić infrastrukturę.
@@ -87,7 +89,8 @@ public static class CityGaps
     public static bool HasWheelchairInfo(Place place) => place.Features.Any(f => WheelchairKeys.Contains(f.Key));
 
     public static CityGapsReport Build(
-        IReadOnlyList<Place> catalog, DistrictMap? districts, TransitNetwork? transit, IReadOnlyList<VerifiedHazard> hazards)
+        IReadOnlyList<Place> catalog, DistrictMap? districts, TransitNetwork? transit, IReadOnlyList<VerifiedHazard> hazards,
+        ResidentsGrid? residents = null)
     {
         var places = catalog.Where(IsDestination).ToList();
         var districtOf = places.ToDictionary(p => p, p => districts?.Find(p.Location));
@@ -114,10 +117,11 @@ public static class CityGaps
             .ThenBy(x => x.Place.Name, StringComparer.Ordinal)
             .ThenBy(x => x.Place.Id, StringComparer.Ordinal)
             .Take(PriorityCount)
+            .Select(x => residents is null ? x : x with { ResidentsNearby = ResidentsReach.ResidentsNear(residents, x.Place.Location) })
             .ToList();
 
         return new CityGapsReport(CoverageStats.Of(places), byDistrict, places.Count(p => districtOf[p] is null), groups,
-            priorities, candidates.Count, day, hazards.Count);
+            priorities, candidates.Count, day, hazards.Count, residents is null ? null : ResidentsReach.Build(residents, districts));
     }
 
     /// <summary>Dzień odniesienia: pierwsza środa w okresie ważności rozkładu (zwykły dzień powszedni, wynik zawsze ten sam).</summary>
