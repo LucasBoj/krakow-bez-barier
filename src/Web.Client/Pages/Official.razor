@@ -1,8 +1,10 @@
-@page "/urzednik"
+﻿@page "/urzednik"
 @inject ISender Sender
 @inject AppState State
 
 <PageTitle>Panel urzędnika</PageTitle>
+
+<CityNav />
 
 @if (_checking)
 {

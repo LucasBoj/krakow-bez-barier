@@ -1,0 +1,20 @@
+@* Zakładki stron dla urzędu i miasta: z każdej widać pozostałe, zamiast szukać ich w stopce. *@
+<nav class="city-nav" aria-label="Dla miasta">
+    <ul>
+        @foreach (var (href, label) in Pages)
+        {
+            <li><NavLink class="city-nav__link" href="@href" Match="NavLinkMatch.All">@label</NavLink></li>
+        }
+    </ul>
+</nav>
+
+@code {
+    /// <summary>Strony sekcji „Dla miasta”; ten sam spis zaznacza punkt w głównej nawigacji.</summary>
+    public static readonly IReadOnlyList<(string Href, string Label)> Pages =
+    [
+        ("miasto", "Luki w danych i bariery"),
+        ("urzednik", "Panel urzędnika"),
+        ("zrodla-danych", "Źródła danych"),
+        ("o-projekcie", "O projekcie")
+    ];
+}

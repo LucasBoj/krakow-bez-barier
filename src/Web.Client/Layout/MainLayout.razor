@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @implements IDisposable
 @inject AppState State
+@inject NavigationManager Navigation
 
 @* Sam "#tresc" przy <base href="/"> prowadził na stronę główną; link przenosi fokus do treści bieżącej strony. *@
 <a class="visually-hidden-focusable skip-link" href="#tresc" @onclick="SkipToContentAsync" @onclick:preventDefault>Przejdź do treści</a>
@@ -51,6 +52,13 @@
             </NavLink>
         </li>
         <li>
+            @* Jeden punkt dla czterech stron dla urzędu (zakładki w CityNav), więc NavLink nie wystarcza. *@
+            <a class="app-nav__link @(InCitySection ? "active" : "")" href="miasto" aria-current="@(InCitySection ? "page" : null)">
+                <span class="app-nav__icon"><span class="msym" aria-hidden="true">map</span></span>
+                Dla miasta
+            </a>
+        </li>
+        <li>
             <NavLink class="app-nav__link" href="konto" data-tour="nav-account">
                 <span class="app-nav__icon"><span class="msym" aria-hidden="true">account_circle</span></span>
                 Konto
@@ -98,11 +106,27 @@
 
     private AppTour? _tour;
 
+    private bool InCitySection
+    {
+        get
+        {
+            var path = Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].TrimEnd('/');
+            return CityNav.Pages.Any(p => p.Href == path);
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         State.Changed += StateHasChanged;
+        Navigation.LocationChanged += OnLocationChanged;
         await State.EnsureLoadedAsync();
     }
 
-    public void Dispose() => State.Changed -= StateHasChanged;
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e) => StateHasChanged();
+
+    public void Dispose()
+    {
+        State.Changed -= StateHasChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
 }
