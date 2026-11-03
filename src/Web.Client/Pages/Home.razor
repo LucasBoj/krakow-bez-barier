@@ -1,4 +1,4 @@
-@page "/"
+﻿@page "/"
 @inject AppState State
 @inject ISender Sender
 @inject NavigationManager Navigation
@@ -102,6 +102,46 @@
         </div>
     </section>
 
+    <!-- Dla miasta: funkcje dla urzędu i szybki przykład -->
+    <section class="py-4 mt-2" aria-labelledby="city-heading">
+        <h2 id="city-heading" class="section-title">Zobacz w minutę</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="card card-body h-100">
+                    <div class="feature-icon" aria-hidden="true"><span class="msym">accessible</span></div>
+                    <h3 class="h5 mt-3">Przykład: wózek w urzędzie</h3>
+                    <p class="text-body-secondary">Ocena Urzędu Miasta Krakowa dla osoby na wózku ręcznym: udogodnienia, braki danych, źródło i data każdej informacji (część cech to oznaczone dane demonstracyjne).</p>
+                    <button type="button" class="btn btn-outline-primary mt-auto align-self-start" @onclick="ShowExampleAsync">Pokaż przykład</button>
+                    <p class="small text-body-secondary mt-2 mb-0">Ustawi profil „Wózek ręczny”; zmienisz go w każdej chwili.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card card-body h-100">
+                    <div class="feature-icon" aria-hidden="true"><span class="msym">map</span></div>
+                    <h3 class="h5 mt-3">Luki w danych i bariery</h3>
+                    <p class="text-body-secondary">Dla urzędu: pokrycie danymi w dzielnicach, udogodnienia w zasięgu mieszkańców i seniorów, 20 miejsc do sprawdzenia, eksport CSV i GeoJSON.</p>
+                    <a class="btn btn-outline-primary mt-auto align-self-start" href="miasto">Otwórz raport miasta</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card card-body h-100">
+                    <div class="feature-icon" aria-hidden="true"><span class="msym">verified</span></div>
+                    <h3 class="h5 mt-3">Panel urzędnika</h3>
+                    <p class="text-body-secondary">Zgłoszenia mieszkańców: urzędnik potwierdza barierę, a ocena miejsc i trasy uwzględniają ją od razu.</p>
+                    <a class="btn btn-outline-primary mt-auto align-self-start" href="urzednik">Przejdź do panelu</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="card card-body h-100">
+                    <div class="feature-icon" aria-hidden="true"><span class="msym">location_on</span></div>
+                    <h3 class="h5 mt-3">Otwarte dane miasta</h3>
+                    <p class="text-body-secondary">Każdy zbiór z adresem, licencją, datą i sposobem aktualizacji, w tym 8 zbiorów z portali miasta (MSIP).</p>
+                    <a class="btn btn-outline-primary mt-auto align-self-start" href="zrodla-danych">Zobacz źródła danych</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     @if (State.User is null)
     {
         <!-- Co daje aplikacja -->
@@ -169,6 +209,15 @@
         }
 
         _summary = MyReportsSummary.From(reports.Value, hazards.Value);
+    }
+
+    /// <summary>Karta z danymi z miasta, OSM i (oznaczonymi) danymi demonstracyjnymi, więc widać wszystkie rodzaje informacji.</summary>
+    private const string ExamplePlaceId = "osm-way-404255986";
+
+    private async Task ShowExampleAsync()
+    {
+        await State.SetProfileAsync(NeedsProfilePresets.Build([NeedsProfilePresets.ManualWheelchair]));
+        Navigation.NavigateTo($"miejsca/{ExamplePlaceId}");
     }
 
     private async Task ChooseAsync(AppMode mode)
