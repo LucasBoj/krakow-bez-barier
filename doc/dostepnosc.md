@@ -14,9 +14,9 @@ dotnet run --project src/Web --launch-profile http
 cd tools/a11y && npm install && npx playwright install chromium && npm run audit
 ```
 
-Audyt obejmuje 16 widoków na każdym ekranie: start, profil, miejsca, karta miejsca, plan, zgłoś na mapie, konto, panel urzędnika, źródła danych, luki w danych (z sekcją o mieszkańcach), o projekcie, a także widoki z danymi (ustawiony profil z dwoma potrzebami, lista z ocenami, ułożony plan z trasą na mapie, karta miejsca z oceną, otwarty samouczek). Do tego test klawiatury: fokus na nagłówku po wejściu na stronę, pierwszy Tab na link „Przejdź do treści”, link widoczny po fokusie i prowadzący do treści bieżącej strony.
+Audyt obejmuje 17 widoków na każdym ekranie: start, profil, miejsca, karta miejsca, plan, zgłoś na mapie, konto, panel urzędnika, źródła danych, luki w danych (z sekcją o mieszkańcach), planer inwestycji, o projekcie, a także widoki z danymi (ustawiony profil z dwoma potrzebami, lista z ocenami, ułożony plan z trasą na mapie, karta miejsca z oceną, otwarty samouczek). Do tego test klawiatury: fokus na nagłówku po wejściu na stronę, pierwszy Tab na link „Przejdź do treści”, link widoczny po fokusie i prowadzący do treści bieżącej strony.
 
-**Wynik: 0 problemów** (32 audyty i 2 testy klawiatury).
+**Wynik: 0 problemów** (34 audyty i 2 testy klawiatury).
 
 ## Co poprawiliśmy po audycie
 

@@ -1,0 +1,11 @@
+pozycja;id;nazwa;adres;najblizszy_przystanek;dzielnica;szer_geogr;dl_geogr;mieszkancy_zyskuja;seniorzy_zyskuja_szacunek;mieszkancy_narastajaco
+1;osm-node-12277513716;Myśliwska 01;;;Podgórze;50,045044;19,997874;2479;437;2479
+2;osm-node-12241929145;Reja 01;;;Prądnik Biały;50,084518;19,942232;1911;442;4390
+3;osm-node-13835171213;Wawelska 02;;;Mistrzejowice;50,096856;20,003525;1684;486;6074
+4;osm-node-1484742204;Czerwieńskiego 02;;;Prądnik Biały;50,083977;19,902451;1648;381;7722
+5;osm-node-6026202021;Cmentarz Bieżanów 01;;;Bieżanów-Prokocim;50,011474;20,024491;1541;414;9263
+6;osm-node-12579114064;Rynek Fałęcki 01;;;Łagiewniki-Borek Fałęcki;50,018408;19,923894;1295;315;10558
+7;osm-node-12579156864;Kępna 01;;;Łagiewniki-Borek Fałęcki;50,014674;19,916719;1225;298;11783
+8;osm-node-3526833498;Dajwór 01;;;Stare Miasto;50,050626;19,950603;1018;324;12801
+9;osm-node-13140476395;Architektów Szkoła 01;;;Wzgórza Krzesławickie;50,096748;20,060699;1017;261;13818
+10;osm-node-12579175522;Polana Żywiecka 01;;;Łagiewniki-Borek Fałęcki;50,011106;19,909099;1001;233;14819

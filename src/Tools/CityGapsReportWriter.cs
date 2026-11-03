@@ -13,7 +13,10 @@ namespace Tools;
 /// </summary>
 public static class CityGapsReportWriter
 {
-    public static CityGapsReport Build(string dataDir, out DistrictMap? districts)
+    public static CityGapsReport Build(string dataDir, out DistrictMap? districts) => Build(dataDir, out districts, out _);
+
+    /// <param name="investments">Plany inwestycji (wiaty, toalety); puste bez siatki mieszkańców.</param>
+    public static CityGapsReport Build(string dataDir, out DistrictMap? districts, out IReadOnlyList<InvestmentPlan> investments)
     {
         var places = PlaceFiles.Read(Path.Combine(dataDir, "places"));
         var districtsPath = Path.Combine(dataDir, "districts.json");
@@ -22,6 +25,8 @@ public static class CityGapsReportWriter
         var transit = File.Exists(transitPath) ? JsonSerializer.Deserialize<TransitNetwork>(File.ReadAllText(transitPath), DomainJson.Options) : null;
         var residentsPath = Path.Combine(dataDir, "residents.json");
         var residents = File.Exists(residentsPath) ? JsonSerializer.Deserialize<ResidentsGrid>(File.ReadAllText(residentsPath), DomainJson.Options) : null;
+        var map = districts;
+        investments = residents is null ? [] : Enum.GetValues<Investment>().Select(i => InvestmentPlanner.Plan(i, residents, places, map)).ToList();
         return CityGaps.Build(places, districts, transit, [], residents);
     }
 
@@ -91,5 +96,28 @@ public static class CityGapsReportWriter
         foreach (var d in r.Districts)
             md.AppendLine($"| {d.Roman} {d.Name} | {d.Residents} | {(d.Registry is { } g ? P(g.SeniorShare) : "–")} | {(d.Registry is { } h ? P(h.Age80Share) : "–")} | " +
                           string.Join(" | ", d.Amenities.Select(a => P(a.Share))) + " |");
+    }
+
+    public static string InvestmentsMarkdown(IReadOnlyList<InvestmentPlan> plans)
+    {
+        var md = new StringBuilder();
+        md.AppendLine();
+        md.AppendLine("## Planer inwestycji");
+        md.AppendLine();
+        md.AppendLine(InvestmentPlanner.Rule);
+        foreach (var plan in plans)
+        {
+            md.AppendLine();
+            md.AppendLine($"### {(plan.Investment == Investment.StopShelter ? "Wiaty na przystankach" : "Dostosowanie toalet publicznych")}: " +
+                          $"{plan.Picks.Count} z {plan.Candidates} kandydatów, +{plan.Gained} mieszkańców (ok. {plan.SeniorsGained} seniorów); " +
+                          $"bez udogodnienia przed inwestycją: {plan.WithoutBefore} z {plan.Residents}");
+            md.AppendLine();
+            md.AppendLine("| # | Obiekt | Dzielnica | Mieszkańcy zyskują | Seniorzy (szacunek) | Narastająco |");
+            md.AppendLine("|---|---|---|---|---|---|");
+            var rank = 1;
+            foreach (var p in plan.Picks)
+                md.AppendLine($"| {rank++} | {p.Place.Name}{(p.Place.Address is { } a ? $", {a}" : "")}{(p.NearStop is { } s ? $" (przy przystanku {s})" : "")} | {p.District ?? "–"} | {p.Residents} | {p.Seniors} | {p.CumulativeResidents} |");
+        }
+        return md.ToString();
     }
 }

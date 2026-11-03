@@ -20,8 +20,8 @@ Directory.CreateDirectory(dataDir);
 
 if (command == "report")
 {
-    var report = CityGapsReportWriter.Build(dataDir, out var districts);
-    var markdown = CityGapsReportWriter.Markdown(report);
+    var report = CityGapsReportWriter.Build(dataDir, out var districts, out var investments);
+    var markdown = CityGapsReportWriter.Markdown(report) + CityGapsReportWriter.InvestmentsMarkdown(investments);
     await File.WriteAllTextAsync(Path.Combine(root, "doc", "RAPORT_LUKI_W_DANYCH.md"), markdown);
     var exportDir = Path.Combine(root, "doc", "raport");
     Directory.CreateDirectory(exportDir);
@@ -29,6 +29,9 @@ if (command == "report")
     await File.WriteAllTextAsync(Path.Combine(exportDir, "kategorie.csv"), CityGapsExport.GroupsCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "priorytety.csv"), CityGapsExport.PrioritiesCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "mieszkancy.csv"), CityGapsExport.ResidentsCsv(report));
+    foreach (var plan in investments)
+        await File.WriteAllTextAsync(Path.Combine(exportDir, plan.Investment == Investment.StopShelter ? "inwestycje-wiaty.csv" : "inwestycje-toalety.csv"),
+            CityGapsExport.InvestmentCsv(plan));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "raport.geojson"), CityGapsExport.GeoJson(report, districts, []));
     Console.WriteLine(markdown);
     return 0;

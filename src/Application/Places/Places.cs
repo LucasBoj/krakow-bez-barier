@@ -370,3 +370,25 @@ internal sealed class GetHomeFactsQueryHandler(IPlaceCatalog catalog, IDataSourc
             grid is null ? null : 1 - ResidentsReach.Build(grid, null).Of(Amenity.AccessibleToilet).Share));
     }
 }
+
+/// <param name="Plans">Plan dla każdego rodzaju inwestycji; pusty bez siatki mieszkańców.</param>
+public sealed record InvestmentPlansView(IReadOnlyList<InvestmentPlan> Plans, DistrictMap? Districts, DateOnly? GridDate);
+
+/// <summary>Planer inwestycji (strona /planer-inwestycji): wiaty i dostosowanie toalet, z mieszkańcami, którzy zyskają dostęp.</summary>
+public sealed record GetInvestmentPlansQuery(string CityId) : IQuery<InvestmentPlansView>;
+
+internal sealed class GetInvestmentPlansQueryHandler(IPlaceCatalog catalog, IResidentsCatalog residents, IDistrictsCatalog districts)
+    : IQueryHandler<GetInvestmentPlansQuery, InvestmentPlansView>
+{
+    public async Task<Result<InvestmentPlansView>> Handle(GetInvestmentPlansQuery query, CancellationToken ct)
+    {
+        var grid = await residents.GetAsync(query.CityId, ct);
+        var map = await districts.GetAsync(query.CityId, ct);
+        if (grid is null)
+            return Result.Success(new InvestmentPlansView([], map, null));
+        // Tylko kategorie z kandydatami: przystanki i toalety (bez ładowania całego katalogu).
+        var places = await catalog.GetAsync(query.CityId, [PlaceCategory.Stop, PlaceCategory.Toilet], ct);
+        var plans = Enum.GetValues<Investment>().Select(i => InvestmentPlanner.Plan(i, grid, places, map)).ToList();
+        return Result.Success(new InvestmentPlansView(plans, map, grid.GridDate));
+    }
+}

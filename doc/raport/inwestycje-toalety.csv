@@ -1,0 +1,11 @@
+pozycja;id;nazwa;adres;najblizszy_przystanek;dzielnica;szer_geogr;dl_geogr;mieszkancy_zyskuja;seniorzy_zyskuja_szacunek;mieszkancy_narastajaco
+1;osm-node-14178163780;Toaleta publiczna;;Rondo Kocmyrzowskie im. Ks. Gorzelanego 06;Bieńczyce;50,082324;20,027581;4473;1390;4473
+2;osm-node-14115407300;Toaleta publiczna;;Dunikowskiego 05;Bieńczyce;50,089625;20,013673;4433;1378;8906
+3;osm-node-1272564181;Toaleta publiczna;;Kurdwanów Południe 02;Podgórze Duchackie;50,005930;19,960082;4028;1061;12934
+4;osm-node-1890616594;Toaleta publiczna;;Biprostal 05;Krowodrza;50,070560;19,916374;3765;1217;16699
+5;osm-way-1206232703;Toaleta publiczna;;Mistrzejowice 05;Mistrzejowice;50,096151;19,996871;3710;1072;20409
+6;osm-node-5643876066;Toaleta publiczna;;Nowosądecka 01;Podgórze Duchackie;50,011455;19,962954;3392;894;23801
+7;osm-node-11105113715;Toaleta publiczna;;;Krowodrza;50,074105;19,924945;2788;901;26589
+8;osm-node-14115967401;Toaleta publiczna;;ks. Kurzei 03;Prądnik Czerwony;50,096288;19,987686;2721;786;29310
+9;osm-node-4866679858;Toaleta publiczna;;Nowy Kleparz 06;Stare Miasto;50,072921;19,935639;2384;760;31694
+10;osm-way-151913843;Toaleta publiczna;;Stradom 05;Stare Miasto;50,051630;19,945325;2266;720;33960

@@ -15,8 +15,8 @@ Układ dokumentu odpowiada § 5 ust. 2 pkt 5 regulaminu konkursu „Open Data Ap
 <div class="kpis">
   <div class="kpi"><b>31 462</b><span>miejsc w katalogu, 18 kategorii</span></div>
   <div class="kpi"><b>12</b><span>zbiorów danych, w tym 8 z portali miasta (MSIP)</span></div>
-  <div class="kpi"><b>300</b><span>testów jednostkowych, wszystkie przechodzą</span></div>
-  <div class="kpi"><b>0</b><span>problemów w audycie WCAG 2.2 A/AA (34 sprawdzenia)</span></div>
+  <div class="kpi"><b>304</b><span>testy jednostkowe, wszystkie przechodzą</span></div>
+  <div class="kpi"><b>0</b><span>problemów w audycie WCAG 2.2 A/AA (36 sprawdzeń)</span></div>
 </div>
 
 <h2>a) Technologie</h2>
@@ -57,6 +57,7 @@ Układ dokumentu odpowiada § 5 ust. 2 pkt 5 regulaminu konkursu „Open Data Ap
   <li><strong>Hałas × miejsca × trasa:</strong> poligony mapy hałasu połączone przestrzennie z miejscami i z odcinkami planu; profil sensoryczny dostaje ostrzeżenie na głośnym odcinku.</li>
   <li><strong>Rejestry miasta × OpenStreetMap:</strong> toalety, wiaty, przystanki i koperty dopasowane do obiektów OSM (po położeniu albo nazwie i numerze słupka). Gdy źródła się różnią, aplikacja pokazuje obie wartości i ostrzega, zamiast po cichu wybierać jedną.</li>
   <li><strong>Ewidencja ludności × udogodnienia:</strong> dla każdego z 5 831 heksagonów liczymy, czy w 300 m jest przystanek, wiata, ławka, toaleta (także dostosowana) i koperta. Wynik: <strong>86,2% zameldowanych (604 816 osób) nie ma w 300 m toalety publicznej dostosowanej</strong>, 18,3% nie ma przystanku z wiatą. W podziale na dzielnice zestawiamy to z udziałem seniorów (współczynnik korelacji Pearsona od 0,36 do 0,69: starsze dzielnice są zwykle bardziej centralne i lepiej wyposażone; najwięcej seniorów bez dostosowanej toalety w zasięgu ma Prądnik Biały, ok. 15 450 osób).</li>
+  <li><strong>Ewidencja ludności × rejestry miasta → decyzja (planer inwestycji):</strong> dla przystanków bez wiaty (rejestr ZTP) i toalet bez potwierdzonego dostosowania liczymy, ilu mieszkańców bez tego udogodnienia w 300 m zyska je po doposażeniu obiektu, i wybieramy kolejno obiekty o największym zysku (zachłanny wybór maksymalnego pokrycia). Wynik: <strong>dostosowanie 10 toalet publicznych = +33 960 mieszkańców z toaletą dostosowaną w zasięgu</strong> (ok. 10 tys. seniorów; odsetek bez dostępu spada z 86,2% do 81,4%), <strong>10 nowych wiat = +14 819 mieszkańców</strong>. Strona <code>/planer-inwestycji</code> z suwakiem liczby inwestycji, mapą i eksportem CSV.</li>
   <li><strong>Rozkład GTFS × obiekty publiczne:</strong> liczba odjazdów z przystanków w 300 m przybliża natężenie ruchu przy urzędach i placówkach zdrowia bez danych o dostępności; z tego powstaje lista 20 miejsc do sprawdzenia w pierwszej kolejności.</li>
   <li><strong>Mieszkańcy × urząd (dane w drugą stronę):</strong> zgłoszenie mieszkańca potwierdzone przez urzędnika staje się osobnym źródłem cechy z datą i od razu zmienia ocenę miejsca i trasy. Raport miasta eksportuje się do CSV i GeoJSON.</li>
 </ul>
@@ -98,11 +99,11 @@ dotnet run --project src/Tools -- report krakow    # liczby raportu „Luki w da
 <h3>Warstwy i projekty</h3>
 <table>
   <tr><th>Projekt</th><th>Odpowiedzialność</th></tr>
-  <tr><td><code>Domain</code></td><td>Model miejsc i cech (źródło, data, dane demonstracyjne), silnik oceny z regułami dla ruchu, wzroku, słuchu, sensoryki, funkcji poznawczych i kondycji, raport „Luki w danych”, zasięg udogodnień i korelacja, wyszukiwarka połączeń GTFS.</td></tr>
+  <tr><td><code>Domain</code></td><td>Model miejsc i cech (źródło, data, dane demonstracyjne), silnik oceny z regułami dla ruchu, wzroku, słuchu, sensoryki, funkcji poznawczych i kondycji, raport „Luki w danych”, zasięg udogodnień i korelacja, planer inwestycji, wyszukiwarka połączeń GTFS.</td></tr>
   <tr><td><code>Application</code></td><td>Zapytania i komendy (CQRS), planer dnia (kolejność: najbliższy sąsiad + 2-opt, przerwy, przejazdy), interfejsy usług.</td></tr>
   <tr><td><code>Infrastructure</code>, <code>Infrastructure.Mongo</code></td><td>Katalog z plików statycznych, klienci HTTP hosta, routing z cache i wariantem awaryjnym, OpenRouteService, OpenAI, repozytoria MongoDB.</td></tr>
   <tr><td><code>Web</code>, <code>Web.Client</code></td><td>Host z API i klient WebAssembly (strony, komponenty, moduły JS mapy).</td></tr>
-  <tr><td><code>Tools</code>, <code>Tests</code></td><td>Import i raport z linii poleceń; 300 testów jednostkowych.</td></tr>
+  <tr><td><code>Tools</code>, <code>Tests</code></td><td>Import i raport z linii poleceń; 304 testy jednostkowe.</td></tr>
 </table>
 
 <h3>Najważniejsze przepływy</h3>
@@ -111,6 +112,7 @@ dotnet run --project src/Tools -- report krakow    # liczby raportu „Luki w da
   <li><strong>Plan dnia:</strong> kolejność miejsc, trasa po ulicach z <code>/api/route</code> (do usługi trafiają tylko punkty i 3 parametry: wózek, schody, krawężnik), hałas na odcinkach z siatki MSIP, ławki i toalety na przerwy, przejazd komunikacją według rozkładu, objazd barier potwierdzonych przez urząd. Routing ma trzy poziomy awaryjne, więc plan układa się zawsze.</li>
   <li><strong>Zgłoszenie:</strong> mieszkaniec zgłasza brak lub barierę (opcjonalnie ze zdjęciem bez EXIF, ocenianym przez AI), urzędnik weryfikuje je w panelu, a potwierdzenie zmienia ocenę miejsca i trasy.</li>
   <li><strong>Raport miasta</strong> (<code>/miasto</code>, bez logowania): liczony w przeglądarce z tych samych plików co polecenie <code>report</code>, więc liczby na stronie i w dokumentach są zgodne.</li>
+  <li><strong>Planer inwestycji</strong> (<code>/planer-inwestycji</code>): przeglądarka wczytuje tylko przystanki, toalety i siatkę mieszkańców, liczy plan i pozwala zmieniać liczbę inwestycji; te same plany zapisuje <code>report</code> do <code>doc/raport/inwestycje-*.csv</code>.</li>
 </ol>
 
 <h3>Stabilność, bezpieczeństwo, prywatność</h3>
@@ -130,13 +132,13 @@ dotnet run --project src/Tools -- report krakow    # liczby raportu „Luki w da
 </ul>
 
 <h3>Dostępność interfejsu</h3>
-<p>Status zawsze jako kolor, znak i tekst; link „Przejdź do treści”; widoczny fokus; etykiety ARIA; mapa z odpowiednikiem w postaci listy; czytanie na głos; tryb ograniczonego ruchu. Automatyczny audyt axe-core (WCAG 2.0–2.2 A/AA): 16 widoków i test klawiatury, na telefonie i komputerze (34 sprawdzenia): 0 problemów (<code>tools/a11y</code>). Przed wdrożeniem produkcyjnym planujemy test z czytnikiem ekranu i z użytkownikami.</p>
+<p>Status zawsze jako kolor, znak i tekst; link „Przejdź do treści”; widoczny fokus; etykiety ARIA; mapa z odpowiednikiem w postaci listy; czytanie na głos; tryb ograniczonego ruchu. Automatyczny audyt axe-core (WCAG 2.0–2.2 A/AA): 17 widoków i test klawiatury, na telefonie i komputerze (36 sprawdzeń): 0 problemów (<code>tools/a11y</code>). Przed wdrożeniem produkcyjnym planujemy test z czytnikiem ekranu i z użytkownikami.</p>
 
 <h2>d) Możliwości rozwoju</h2>
 <table>
   <tr><th>Kierunek</th><th>Co konkretnie</th></tr>
   <tr><td>Więcej danych miasta</td><td>Budynki publiczne z MSIP, deklaracje dostępności instytucji miejskich, rejestr przejść dla pieszych i sygnalizacji dźwiękowej, tabor niskopodłogowy i komunikacja na żywo (GTFS-RT).</td></tr>
-  <tr><td>Narzędzie dla urzędu</td><td>Cykliczny import i raport (np. co tydzień), historia wskaźników w czasie, przypisywanie zgłoszeń do jednostek (ZDMK, ZTP, wydziały), eksport do systemów GIS miasta.</td></tr>
+  <tr><td>Narzędzie dla urzędu</td><td>Planer inwestycji z kosztami i budżetem (dziś liczy tylko mieszkańców), kolejne rodzaje inwestycji (ławki, przejścia, windy), cykliczny import i raport (np. co tydzień), historia wskaźników w czasie, przypisywanie zgłoszeń do jednostek (ZDMK, ZTP, wydziały), eksport do systemów GIS miasta.</td></tr>
   <tr><td>Otwarte dane w drugą stronę</td><td>Publikacja potwierdzonych barier i braków jako nowego zbioru na portalu otwartych danych; klucze API dla partnerów (przewoźnicy, turystyka, uczelnie).</td></tr>
   <tr><td>Sektor prywatny</td><td>Konta firmowe z certyfikatem QR (hotele, gastronomia, kultura) jako źródło danych i usługa dla branży turystycznej.</td></tr>
   <tr><td>Kolejne miasta</td><td>Import działa dla każdego miasta z OSM i GTFS; dane miejskie podpina się konfiguracją warstw.</td></tr>
