@@ -74,9 +74,10 @@ public static class CityData
                 $"Najbliższe koperty przy miejscu i start trasy pieszej; {groups.Count} miejsc, {matched} połączonych z OSM.", false));
         }
 
+        DistrictMap? districtMap = null;
         if (city.DistrictsLayer is { } districtsLayer)
         {
-            var districts = await new MsipDistrictsSource(http).LoadAsync(districtsLayer);
+            var districts = districtMap = await new MsipDistrictsSource(http).LoadAsync(districtsLayer);
             var districtsPath = Path.Combine(dataDir, "districts.json");
             await File.WriteAllTextAsync(districtsPath, JsonSerializer.Serialize(districts, DomainJson.Options));
             Console.WriteLine($"Dzielnice: {districts.Districts.Count}, {new FileInfo(districtsPath).Length / 1024} KB");
@@ -99,6 +100,25 @@ public static class CityData
                 $"Hałas otoczenia {noisy} miejsc i odcinków trasy dla profili sensorycznych (najwyżej „z ograniczeniami”).", true));
             Console.WriteLine($"Hałas otoczenia: {places.Count(p => p.Feature(FeatureKey.AmbientNoiseDb) is not null)} miejsc " +
                               $"z {places.Count(MsipNoiseSource.AppliesTo)} sprawdzanych");
+        }
+
+        // Na końcu: zasięg udogodnień liczymy z gotowego katalogu (z toaletami, wiatami i kopertami z rejestrów miasta).
+        if (city.ResidentsDistrictsLayer is { } residentsDistrictsLayer && city.ResidentsGridLayer is { } residentsGridLayer)
+        {
+            var source = new MsipResidentsSource(http);
+            var byDistrict = await source.LoadDistrictsAsync(residentsDistrictsLayer);
+            var gridSnapshot = await source.LoadGridAsync(residentsGridLayer);
+            var grid = MsipResidentsSource.Build(gridSnapshot, byDistrict, districtMap, places);
+            var gridPath = Path.Combine(dataDir, "residents.json");
+            await File.WriteAllTextAsync(gridPath, JsonSerializer.Serialize(grid, DomainJson.Options));
+            var outside = grid.District.Count(d => d == 0);
+            Console.WriteLine($"Siatka mieszkańców: {grid.Residents.Count} heksagonów ({outside} poza dzielnicami), {new FileInfo(gridPath).Length / 1024} KB");
+            sources.Add(new DataSource("Mieszkańcy dzielnic według wieku (ewidencja ludności)", "Gmina Miejska Kraków, MSIP", residentsDistrictsLayer,
+                CityPortalLicense, byDistrict.Date.ToString("dd.MM.yyyy"), today, byDistrict.Districts.Count,
+                "Udział seniorów (kobiety 60+, mężczyźni 65+) i osób 80+ w dzielnicach; korelacja z zasięgiem udogodnień na stronie „Luki w danych”.", true));
+            sources.Add(new DataSource("Stałe zameldowania w siatce heksagonów 100 m", "Gmina Miejska Kraków, MSIP", residentsGridLayer,
+                CityPortalLicense, gridSnapshot.Date.ToString("dd.MM.yyyy"), today, gridSnapshot.Cells.Count,
+                $"Ilu mieszkańców ma w promieniu {ResidentsReach.RadiusM:0} m przystanek, wiatę, ławkę, toaletę i kopertę; mieszkańcy przy miejscach z listy priorytetów.", true));
         }
 
         return places;

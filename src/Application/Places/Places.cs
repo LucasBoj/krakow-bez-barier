@@ -319,7 +319,8 @@ public sealed record CityGapsView(CityGapsReport Report, DistrictMap? Districts,
 /// <summary>Raport "Luki w danych i bariery" dla całego miasta (strona /miasto).</summary>
 public sealed record GetCityGapsQuery(string CityId) : IQuery<CityGapsView>;
 
-internal sealed class GetCityGapsQueryHandler(IPlaceCatalog catalog, IDistrictsCatalog districts, ITransitCatalog transit, IHazardsClient hazards)
+internal sealed class GetCityGapsQueryHandler(
+    IPlaceCatalog catalog, IDistrictsCatalog districts, ITransitCatalog transit, IHazardsClient hazards, IResidentsCatalog residents)
     : IQueryHandler<GetCityGapsQuery, CityGapsView>
 {
     public async Task<Result<CityGapsView>> Handle(GetCityGapsQuery query, CancellationToken ct)
@@ -329,7 +330,8 @@ internal sealed class GetCityGapsQueryHandler(IPlaceCatalog catalog, IDistrictsC
         var map = await districts.GetAsync(query.CityId, ct);
         var network = await transit.GetNetworkAsync(query.CityId, ct);
         var verified = await hazards.GetVerifiedAsync(query.CityId, ct);
+        var grid = await residents.GetAsync(query.CityId, ct);
         IReadOnlyList<VerifiedHazard> known = verified.IsSuccess ? verified.Value : [];
-        return Result.Success(new CityGapsView(CityGaps.Build(places, map, network, known), map, known, verified.IsSuccess));
+        return Result.Success(new CityGapsView(CityGaps.Build(places, map, network, known, grid), map, known, verified.IsSuccess));
     }
 }

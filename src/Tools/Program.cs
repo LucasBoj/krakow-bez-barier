@@ -28,6 +28,7 @@ if (command == "report")
     await File.WriteAllTextAsync(Path.Combine(exportDir, "dzielnice.csv"), CityGapsExport.DistrictsCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "kategorie.csv"), CityGapsExport.GroupsCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "priorytety.csv"), CityGapsExport.PrioritiesCsv(report));
+    await File.WriteAllTextAsync(Path.Combine(exportDir, "mieszkancy.csv"), CityGapsExport.ResidentsCsv(report));
     await File.WriteAllTextAsync(Path.Combine(exportDir, "raport.geojson"), CityGapsExport.GeoJson(report, districts, []));
     Console.WriteLine(markdown);
     return 0;
