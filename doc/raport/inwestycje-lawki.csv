@@ -1,0 +1,11 @@
+pozycja;id;nazwa;adres;najblizszy_przystanek;dzielnica;szer_geogr;dl_geogr;mieszkancy_zyskuja;seniorzy_zyskuja_szacunek;mieszkancy_narastajaco
+1;osm-node-12241929145;Reja 01;;;Prądnik Biały;50,084518;19,942232;1911;442;1911
+2;osm-node-13835171213;Wawelska 02;;;Mistrzejowice;50,096856;20,003525;1684;486;3595
+3;osm-node-3661984748;Łagiewniki ZUS 01;;;Łagiewniki-Borek Fałęcki;50,024486;19,933871;1655;403;5250
+4;osm-node-9839569629;Krokusowa 02;;;Dębniki;50,024985;19,919473;1577;338;6827
+5;osm-node-9990569271;Powstańców Garaże 02;;;Prądnik Czerwony;50,095184;19,968227;1481;428;8308
+6;osm-node-12579114064;Rynek Fałęcki 01;;;Łagiewniki-Borek Fałęcki;50,018408;19,923894;1198;292;9506
+7;osm-node-4992979153;Jasieńskiego 04;;;Bieżanów-Prokocim;50,016986;20,057223;1097;294;10603
+8;osm-node-13140476395;Architektów Szkoła 01;;;Wzgórza Krzesławickie;50,096748;20,060699;1017;261;11620
+9;osm-node-12579175522;Polana Żywiecka 01;;;Łagiewniki-Borek Fałęcki;50,011106;19,909099;1001;233;12621
+10;osm-node-12219124381;ZDMK 01;;;Czyżyny;50,063693;20,008918;998;204;13619
