@@ -2,17 +2,31 @@
 @inject IJSRuntime JS
 
 <fieldset class="photo-analysis mb-3" aria-describedby="@($"{IdPrefix}-help")">
-    <legend class="h6">Zdjęcie (opcjonalnie)</legend>
-    <p id="@($"{IdPrefix}-help")" class="form-text mt-0">
-        Zrób albo dodaj zdjęcie, a AI oceni, czy widać na nim przeszkodę. Zdjęcie wysyłamy do analizy w OpenAI,
-        a jego zmniejszoną kopię dołączamy do zgłoszenia: zobaczy ją urzędnik i Ty na stronie Konto, nikt inny.
-        Dane o lokalizacji usuwamy ze zdjęcia jeszcze w przeglądarce. Unikaj fotografowania twarzy i tablic rejestracyjnych.
-    </p>
+    <legend class="photo-analysis__title">
+        <span class="photo-analysis__icon" aria-hidden="true"><span class="msym">photo_camera</span></span>
+        <span>
+            Dodaj zdjęcie przeszkody
+            <span class="photo-analysis__badges">
+                <span class="photo-analysis__badge photo-analysis__badge--ai"><span class="msym" aria-hidden="true">psychology</span> AI rozpozna przeszkodę</span>
+                <span class="photo-analysis__badge">opcjonalnie</span>
+            </span>
+        </span>
+    </legend>
+    <div id="@($"{IdPrefix}-help")">
+        <p class="photo-analysis__lead">
+            Zrób albo dodaj zdjęcie, a AI oceni, czy widać na nim przeszkodę, i podpowie, jak uzupełnić zgłoszenie.
+        </p>
+        <ul class="photo-analysis__rules">
+            <li><span class="msym" aria-hidden="true">check</span> Dane o lokalizacji usuwamy ze zdjęcia jeszcze w przeglądarce.</li>
+            <li><span class="msym" aria-hidden="true">check</span> Zdjęcie wysyłamy do analizy w OpenAI, a jego zmniejszoną kopię dołączamy do zgłoszenia: zobaczy ją urzędnik i Ty na stronie Konto, nikt inny.</li>
+            <li><span class="msym" aria-hidden="true">warning</span> Unikaj fotografowania twarzy i tablic rejestracyjnych.</li>
+        </ul>
+    </div>
 
     @* Pola wyboru pliku muszą zostać w DOM na czas analizy: Blazor czyta plik z elementu input, więc po jego usunięciu odczyt się wywala. *@
     <div class="photo-picker" hidden="@_busy">
         <InputFile id="@($"{IdPrefix}-camera")" class="visually-hidden" accept="image/*" capture="environment" OnChange="OnSelectedAsync" />
-        <label class="btn btn-outline-primary" for="@($"{IdPrefix}-camera")"><span class="msym" aria-hidden="true">photo_camera</span> Zrób zdjęcie</label>
+        <label class="btn btn-primary" for="@($"{IdPrefix}-camera")"><span class="msym" aria-hidden="true">photo_camera</span> Zrób zdjęcie</label>
         <InputFile id="@($"{IdPrefix}-file")" class="visually-hidden" accept="image/*" OnChange="OnSelectedAsync" />
         <label class="btn btn-outline-secondary" for="@($"{IdPrefix}-file")"><span class="msym" aria-hidden="true">image</span> Wybierz z urządzenia</label>
         @if (_preview is not null)
