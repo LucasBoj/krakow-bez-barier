@@ -263,3 +263,112 @@ h1, .h1 {
     color: var(--md-sys-color-on-surface-variant);
     font: var(--md-sys-typescale-body-medium);
 }
+
+/* Zdjęcie w zgłoszeniu: wyróżniona karta, bo zdjęcie z oceną AI najbardziej pomaga urzędnikowi. */
+.photo-analysis {
+    margin-inline: 0;
+    padding: var(--kbb-space-4);
+    border: 2px dashed color-mix(in srgb, var(--md-sys-color-primary) 45%, transparent);
+    border-radius: var(--kbb-radius-card);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--md-sys-color-primary) 9%, var(--kbb-card-bg)), var(--kbb-card-bg));
+}
+
+.photo-analysis__title {
+    display: flex;
+    float: left;
+    align-items: center;
+    gap: var(--kbb-space-3);
+    width: 100%;
+    margin-bottom: var(--kbb-space-2);
+    padding: 0;
+    color: var(--kbb-heading);
+    font: var(--md-sys-typescale-title-medium);
+    font-weight: 700;
+}
+
+.photo-analysis__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0B4F8A, #2A7BD0);
+    color: #FFFFFF;
+}
+
+.photo-analysis__icon .msym {
+    font-size: 28px;
+}
+
+.photo-analysis__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--kbb-space-1) var(--kbb-space-2);
+    margin-top: var(--kbb-space-1);
+}
+
+.photo-analysis__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border: 1px solid var(--kbb-control-border);
+    border-radius: 999px;
+    background: var(--kbb-card-bg);
+    color: var(--md-sys-color-on-surface-variant);
+    font: var(--md-sys-typescale-label-medium);
+}
+
+.photo-analysis__badge--ai {
+    border-color: var(--md-sys-color-primary);
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.photo-analysis__badge .msym {
+    font-size: 18px;
+}
+
+.photo-analysis__lead {
+    margin-bottom: var(--kbb-space-2);
+    color: var(--md-sys-color-on-surface);
+    font: var(--md-sys-typescale-body-large);
+}
+
+.photo-analysis__rules {
+    display: grid;
+    gap: var(--kbb-space-1);
+    margin: 0 0 var(--kbb-space-3);
+    padding: 0;
+    list-style: none;
+    color: var(--md-sys-color-on-surface-variant);
+    font: var(--md-sys-typescale-body-medium);
+}
+
+.photo-analysis__rules li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--kbb-space-2);
+}
+
+.photo-analysis__rules .msym {
+    flex: none;
+    font-size: 20px;
+    color: var(--md-sys-color-primary);
+}
+
+.photo-analysis .photo-picker .btn {
+    min-height: 48px;
+}
+
+@media (prefers-contrast: more) {
+    .photo-analysis {
+        border-style: solid;
+        border-color: var(--md-sys-color-on-surface);
+    }
+}
+
+.photo-analysis__title + * {
+    clear: left;
+}
